@@ -25,7 +25,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   late Animation<Offset> _textSlide;
   late Animation<double> _btnFade;
 
-
+  static const _singer1 = 'assets/images/yesu.jpg';
+  static const _singer2 = 'assets/images/sithrs.jpg';
+  static const _singer3 = 'assets/images/ks.jpg';
 
   @override
   void initState() {

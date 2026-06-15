@@ -14,9 +14,9 @@ void main() {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: AppColors.background,
-      systemNavigationBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: AppColors.bottomNavBg,
+      systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
 
@@ -41,7 +41,7 @@ class LuxTuneApp extends StatelessWidget {
     return MaterialApp(
       title: 'LuxTune',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
+      theme: AppTheme.dark,
       home: const SplashScreen(),
     );
   }

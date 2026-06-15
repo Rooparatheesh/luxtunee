@@ -4,40 +4,36 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary Palette - Warm Cream / Soft Stone (matches design)
-  static const Color background = Color(0xFFE8E4DF);
-  static const Color surface = Color(0xFFF0EDE8);
-  static const Color surfaceVariant = Color(0xFFD8D3CC);
-  static const Color card = Color(0xFFEAE6E1);
+  // Library / Dark Theme
+  static const Color libraryBackground = Color(0xFF181520); // Deep dark purple/grey
+  static const Color librarySurface = Color(0xFF232030); 
+  static const Color libraryPillBg = Color(0xFF485655); // Album/Artist dark pills
+  static const Color libraryPillActiveBg = Color(0xFF55826A); // Greenish active pill
+  static const Color libraryTextGreen = Color(0xFF89B99E); // "Library" text color
 
-  // Dark / Ink
-  static const Color ink = Color(0xFF1A1814);
-  static const Color inkSecondary = Color(0xFF3D3A35);
-  static const Color inkMuted = Color(0xFF7A7570);
-  static const Color inkLight = Color(0xFFA8A39D);
+  // Now Playing / Earthy Theme
+  static const Color playerBackground = Color(0xFF583311); // Deep brown
+  static const Color playerOrange = Color(0xFFB45A17); // Orange accents
+  static const Color playerMiniBg = Color(0xFF914E15); // Mini player brown
 
-  // Accent
-  static const Color accent = Color(0xFF1A1814);
-  static const Color accentGlow = Color(0xFF4A4540);
+  // Controls (Pills)
+  static const Color pillPaleOrange = Color(0xFFFFCC99);
+  static const Color pillPaleGreen = Color(0xFFC1D4A6);
 
-  // Semantic
+  // Common Semantic
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
-  static const Color selected = Color(0xFF1A1814);
-  static const Color selectedFg = Color(0xFFFFFFFF);
+  static const Color textMuted = Color(0xFF8A8498);
+  static const Color textLight = Color(0xFFB5AFBF);
 
-  // Gradient stops
-  static const List<Color> blobGradient = [
-    Color(0xFFDDD8D0),
-    Color(0xFFCCC7BF),
-  ];
+  static const Color bottomNavBg = Color(0xFF1E1B26);
 }
 
 class AppTypography {
   static TextStyle display({
     double size = 32,
     FontWeight weight = FontWeight.w700,
-    Color color = AppColors.ink,
+    Color color = AppColors.white,
     double letterSpacing = -0.5,
   }) => GoogleFonts.spaceGrotesk(
     fontSize: size,
@@ -49,7 +45,7 @@ class AppTypography {
   static TextStyle heading({
     double size = 22,
     FontWeight weight = FontWeight.w600,
-    Color color = AppColors.ink,
+    Color color = AppColors.white,
   }) => GoogleFonts.spaceGrotesk(
     fontSize: size,
     fontWeight: weight,
@@ -60,13 +56,13 @@ class AppTypography {
   static TextStyle body({
     double size = 14,
     FontWeight weight = FontWeight.w400,
-    Color color = AppColors.inkSecondary,
+    Color color = AppColors.textLight,
   }) => GoogleFonts.dmSans(fontSize: size, fontWeight: weight, color: color);
 
   static TextStyle label({
     double size = 11,
     FontWeight weight = FontWeight.w500,
-    Color color = AppColors.inkMuted,
+    Color color = AppColors.textMuted,
     double letterSpacing = 0.3,
   }) => GoogleFonts.dmSans(
     fontSize: size,
@@ -77,40 +73,40 @@ class AppTypography {
 }
 
 class AppTheme {
-  static ThemeData get light => ThemeData(
+  static ThemeData get dark => ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: AppColors.background,
-    colorScheme: const ColorScheme.light().copyWith(
-      primary: AppColors.ink,
-      secondary: AppColors.inkSecondary,
-      surface: AppColors.surface,
-      onPrimary: AppColors.white,
+    scaffoldBackgroundColor: AppColors.libraryBackground,
+    colorScheme: const ColorScheme.dark().copyWith(
+      primary: AppColors.libraryTextGreen,
+      secondary: AppColors.playerOrange,
+      surface: AppColors.librarySurface,
+      onPrimary: AppColors.libraryBackground,
       onSecondary: AppColors.white,
-      onSurface: AppColors.ink,
+      onSurface: AppColors.white,
     ),
-    canvasColor: AppColors.background,
-    cardColor: AppColors.card,
+    canvasColor: AppColors.libraryBackground,
+    cardColor: AppColors.librarySurface,
     textTheme: TextTheme(
       displayLarge: AppTypography.display(size: 40),
       displayMedium: AppTypography.display(size: 32),
       headlineLarge: AppTypography.heading(size: 26),
       headlineMedium: AppTypography.heading(size: 22),
       headlineSmall: AppTypography.heading(size: 18),
-      bodyLarge: AppTypography.body(size: 16),
+      bodyLarge: AppTypography.body(size: 16, color: AppColors.white),
       bodyMedium: AppTypography.body(size: 14),
       bodySmall: AppTypography.body(size: 12),
       labelLarge: AppTypography.label(size: 13),
       labelSmall: AppTypography.label(size: 10),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.libraryBackground,
       elevation: 0,
       centerTitle: true,
       titleTextStyle: AppTypography.heading(size: 16),
-      iconTheme: const IconThemeData(color: AppColors.ink),
+      iconTheme: const IconThemeData(color: AppColors.white),
     ),
-    dividerColor: AppColors.surfaceVariant,
-    iconTheme: const IconThemeData(color: AppColors.ink),
+    dividerColor: AppColors.textMuted.withOpacity(0.2),
+    iconTheme: const IconThemeData(color: AppColors.white),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
         TargetPlatform.android: CupertinoPageTransitionsBuilder(),

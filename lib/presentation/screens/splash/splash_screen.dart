@@ -78,14 +78,14 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.ink,
+      backgroundColor: AppColors.libraryBackground,
       body: AnimatedBuilder(
         animation: Listenable.merge([_logoCtrl, _bgCtrl]),
         builder: (_, __) => Transform.scale(
           scale: _bgScale.value,
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.ink,
+              color: AppColors.librarySurface,
               borderRadius: BorderRadius.circular(40 * (1 - _bgScale.value)),
             ),
             child: Center(
@@ -101,13 +101,13 @@ class _SplashScreenState extends State<SplashScreen>
                         width: 72,
                         height: 72,
                         decoration: BoxDecoration(
-                          color: AppColors.background,
+                          color: AppColors.libraryBackground,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Center(
                           child: Icon(
                             Icons.music_note_rounded,
-                            color: AppColors.ink,
+                            color: AppColors.white,
                             size: 36,
                           ),
                         ),
@@ -117,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen>
                         'LuxTune',
                         style: AppTypography.display(
                           size: 38,
-                          color: AppColors.background,
+                          color: AppColors.white,
                           letterSpacing: -1,
                           weight: FontWeight.w800,
                         ),
@@ -126,7 +126,7 @@ class _SplashScreenState extends State<SplashScreen>
                       Text(
                         'Elevate Every Moment',
                         style: AppTypography.label(
-                          color: AppColors.inkLight,
+                          color: AppColors.textLight,
                           size: 13,
                           letterSpacing: 2,
                         ),

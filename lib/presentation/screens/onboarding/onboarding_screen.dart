@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:luxtunee/theme/app_theme.dart';
 import 'package:luxtunee/presentation/widgets/common/blob_painter.dart';
 import '../../../core/constants/app_constants.dart';
-import '../artist_select/artist_select_screen.dart';
+import '../main_scaffold.dart';
 import 'dart:math' as math;
 
 class OnboardingScreen extends StatefulWidget {
@@ -102,7 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   void _navigateToArtistSelect() {
     Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => const ArtistSelectScreen(),
+        pageBuilder: (_, __, ___) => const MainScaffold(),
         transitionsBuilder: (_, anim, __, child) => SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(1, 0),
@@ -122,7 +122,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.libraryBackground,
       body: Stack(
         children: [
           // Decorative blob outlines in background
@@ -164,7 +164,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           style: AppTypography.body(
                             size: 15,
                             weight: FontWeight.w500,
-                            color: AppColors.inkMuted,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ),
@@ -292,7 +292,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           'Immerse Yourself In A World Where Every Beat\nEnhances Your Mood And Every Melody Tells\nYour Story.',
                           style: AppTypography.body(
                             size: 13,
-                            color: AppColors.inkMuted,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -385,7 +385,7 @@ class _LuxButtonState extends State<_LuxButton>
           width: double.infinity,
           height: 56,
           decoration: BoxDecoration(
-            color: AppColors.ink,
+            color: AppColors.libraryPillActiveBg,
             borderRadius: BorderRadius.circular(AppConstants.radiusLG),
           ),
           child: Center(
@@ -430,10 +430,10 @@ class _FloatingArtistImage extends StatelessWidget {
           if (isPointed)
             CustomPaint(
               size: Size(size, size),
-              painter: _StarBlobPainter(color: AppColors.surfaceVariant),
+              painter: _StarBlobPainter(color: AppColors.librarySurface),
             )
           else
-            AnimatedBlob(color: AppColors.surfaceVariant, size: size),
+            AnimatedBlob(color: AppColors.librarySurface, size: size),
           ClipOval(
             child: Image.asset(
               imageUrl,
@@ -443,7 +443,7 @@ class _FloatingArtistImage extends StatelessWidget {
               errorBuilder: (_, __, ___) => Container(
                 width: size * 0.75,
                 height: size * 0.75,
-                color: AppColors.surfaceVariant,
+                color: AppColors.librarySurface,
                 child: const Icon(Icons.person),
               ),
             ),
@@ -476,7 +476,7 @@ class _BlobOutlinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.inkMuted
+      ..color = AppColors.textMuted
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -520,7 +520,7 @@ class _BlobLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.inkMuted.withOpacity(0.12)
+      ..color = AppColors.textMuted.withOpacity(0.12)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 

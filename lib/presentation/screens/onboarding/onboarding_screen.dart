@@ -41,7 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _floatCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
-    )..repeat(reverse: true);
+    );
 
     _img1 = Tween<Offset>(begin: const Offset(-0.5, -0.3), end: Offset.zero)
         .animate(

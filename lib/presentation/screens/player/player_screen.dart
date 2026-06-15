@@ -44,9 +44,6 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
     return Consumer<PlayerProvider>(
       builder: (context, player, _) {
         final track = player.currentTrack;
-        final progress = player.duration.inSeconds > 0
-            ? player.position.inSeconds / player.duration.inSeconds
-            : 0.0;
 
         return Scaffold(
           backgroundColor: AppColors.playerBackground,
@@ -106,6 +103,9 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                 type: ArtworkType.ALBUM,
                                 artworkBorder: BorderRadius.zero,
                                 artworkFit: BoxFit.cover,
+                                artworkWidth: double.infinity,
+                                artworkHeight: double.infinity,
+                                size: 1000,
                                 nullArtworkWidget: Container(
                                   color: AppColors.libraryBackground,
                                   child: const Center(
@@ -172,43 +172,56 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
 
                   const SizedBox(height: 24),
 
-                  // Seek Bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        trackHeight: 4,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                        overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                        activeTrackColor: AppColors.playerOrange,
-                        inactiveTrackColor: AppColors.white.withOpacity(0.3),
-                        thumbColor: AppColors.playerOrange,
-                      ),
-                      child: Slider(
-                        value: progress.clamp(0.0, 1.0),
-                        onChanged: (v) => player.seek(
-                          Duration(seconds: (v * player.duration.inSeconds).round()),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Seek Bar and Timestamps
+                  StreamBuilder<Duration>(
+                    stream: player.positionStream,
+                    builder: (context, snapshot) {
+                      final position = snapshot.data ?? player.position;
+                      final duration = player.duration;
+                      final progress = duration.inSeconds > 0
+                          ? position.inSeconds / duration.inSeconds
+                          : 0.0;
 
-                  // Timestamps
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _fmt(player.position),
-                          style: AppTypography.label(color: AppColors.white.withOpacity(0.6)),
-                        ),
-                        Text(
-                          _fmt(player.duration),
-                          style: AppTypography.label(color: AppColors.white.withOpacity(0.6)),
-                        ),
-                      ],
-                    ),
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                trackHeight: 4,
+                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                                activeTrackColor: AppColors.playerOrange,
+                                inactiveTrackColor: AppColors.white.withOpacity(0.3),
+                                thumbColor: AppColors.playerOrange,
+                              ),
+                              child: Slider(
+                                value: progress.clamp(0.0, 1.0),
+                                onChanged: (v) => player.seek(
+                                  Duration(seconds: (v * duration.inSeconds).round()),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _fmt(position),
+                                  style: AppTypography.label(color: AppColors.white.withOpacity(0.6)),
+                                ),
+                                Text(
+                                  _fmt(duration),
+                                  style: AppTypography.label(color: AppColors.white.withOpacity(0.6)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
 
                   const Spacer(),

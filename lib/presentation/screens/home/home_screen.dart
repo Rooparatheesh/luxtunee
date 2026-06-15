@@ -16,6 +16,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<String> _filters = ['SONGS', 'ALBUMS', 'ARTIST', 'PLAYLISTS'];
   int _selectedFilter = 0;
+  bool _isSearching = false;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -44,24 +47,50 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Library',
-                    style: AppTypography.display(
-                      size: 28,
-                      weight: FontWeight.w700,
-                      color: AppColors.libraryTextGreen,
+                  if (_isSearching)
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        autofocus: true,
+                        style: AppTypography.body(color: AppColors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Search songs or artists...',
+                          hintStyle: AppTypography.body(color: AppColors.textMuted),
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+                      ),
+                    )
+                  else
+                    Text(
+                      'Library',
+                      style: AppTypography.display(
+                        size: 28,
+                        weight: FontWeight.w700,
+                        color: AppColors.libraryTextGreen,
+                      ),
                     ),
-                  ),
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.search_rounded, color: AppColors.white),
-                        onPressed: () {},
+                        icon: Icon(_isSearching ? Icons.close_rounded : Icons.search_rounded, color: AppColors.white),
+                        onPressed: () {
+                          setState(() {
+                            if (_isSearching) {
+                              _isSearching = false;
+                              _searchQuery = '';
+                              _searchController.clear();
+                            } else {
+                              _isSearching = true;
+                            }
+                          });
+                        },
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.more_vert_rounded, color: AppColors.white),
-                        onPressed: () {},
-                      ),
+                      if (!_isSearching)
+                        IconButton(
+                          icon: const Icon(Icons.more_vert_rounded, color: AppColors.white),
+                          onPressed: () {},
+                        ),
                     ],
                   ),
                 ],
@@ -112,7 +141,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                   
-                  if (player.tracks.isEmpty) {
+                  var filteredTracks = player.tracks;
+                  if (_searchQuery.isNotEmpty) {
+                    filteredTracks = filteredTracks.where((track) => 
+                      track.title.toLowerCase().contains(_searchQuery) ||
+                      track.artist.toLowerCase().contains(_searchQuery)
+                    ).toList();
+                  }
+
+                  if (filteredTracks.isEmpty) {
                     return Center(
                       child: Text(
                         'No music found',
@@ -124,9 +161,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Ensure we pad the bottom so the mini player doesn't hide the last items
                   return ListView.builder(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 100), 
-                    itemCount: player.tracks.length,
+                    itemCount: filteredTracks.length,
                     itemBuilder: (context, index) {
-                      final track = player.tracks[index];
+                      final track = filteredTracks[index];
                       final isPlaying = player.currentTrack?.id == track.id;
                       
                       return GestureDetector(
@@ -148,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   id: track.albumId ?? 0,
                                   type: ArtworkType.ALBUM,
                                   artworkBorder: BorderRadius.circular(8),
+                                  keepOldArtwork: true,
                                   nullArtworkWidget: const Center(
                                     child: Icon(Icons.music_note_rounded, color: AppColors.textMuted),
                                   ),
@@ -185,9 +223,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               
                               // Options / More
-                              IconButton(
+                              PopupMenuButton<String>(
                                 icon: const Icon(Icons.more_vert_rounded, color: AppColors.textMuted),
-                                onPressed: () {},
+                                color: AppColors.librarySurface,
+                                onSelected: (value) {
+                                  if (value == 'remove') {
+                                    player.removeTrack(track);
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) => [
+                                  PopupMenuItem(
+                                    value: 'remove',
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
+                                        const SizedBox(width: 8),
+                                        Text('Remove from Library', style: AppTypography.body(color: Colors.redAccent)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

@@ -1,6 +1,7 @@
 // lib/providers/player_provider.dart
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import '../data/models/track_model.dart';
 import '../data/repositories/local_repository.dart';
 
@@ -15,14 +16,15 @@ class PlayerProvider extends ChangeNotifier {
   Duration duration = Duration.zero;
   bool isLoading = false;
 
+  Stream<Duration> get positionStream => _player.positionStream;
+  Stream<Duration?> get durationStream => _player.durationStream;
+
   PlayerProvider() {
     _player.positionStream.listen((pos) {
       position = pos;
-      notifyListeners();
     });
     _player.durationStream.listen((dur) {
       if (dur != null) duration = dur;
-      notifyListeners();
     });
     _player.playerStateStream.listen((state) {
       isPlaying = state.playing;
@@ -45,7 +47,24 @@ class PlayerProvider extends ChangeNotifier {
 
   Future<void> playTrack(TrackModel track) async {
     currentTrack = track;
-    await _player.setAudioSource(AudioSource.uri(Uri.parse(track.uri)));
+    notifyListeners(); // Update UI immediately so it feels snappy
+    
+    // Check if the track is remote or local
+    final isRemote = !track.isLocal;
+    final artUri = isRemote && track.albumArt.isNotEmpty 
+        ? Uri.parse(track.albumArt) 
+        : Uri.parse('content://media/external/audio/albumart/${track.albumId ?? 0}');
+
+    await _player.setAudioSource(AudioSource.uri(
+      Uri.parse(track.playbackSource),
+      tag: MediaItem(
+        id: track.id.toString(),
+        album: track.album,
+        title: track.title,
+        artist: track.artist,
+        artUri: artUri,
+      ),
+    ));
     await _player.play();
     notifyListeners();
   }
@@ -68,6 +87,15 @@ class PlayerProvider extends ChangeNotifier {
     if (currentTrack == null || tracks.isEmpty) return;
     final idx = tracks.indexWhere((t) => t.id == currentTrack!.id);
     if (idx > 0) await playTrack(tracks[idx - 1]);
+  }
+
+  void removeTrack(TrackModel track) {
+    tracks.removeWhere((t) => t.id == track.id);
+    if (currentTrack?.id == track.id) {
+      _player.stop();
+      currentTrack = null;
+    }
+    notifyListeners();
   }
 
   @override

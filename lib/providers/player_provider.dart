@@ -28,6 +28,12 @@ class PlayerProvider extends ChangeNotifier {
     });
     _player.playerStateStream.listen((state) {
       isPlaying = state.playing;
+      
+      // Automatically skip to the next track when the current one finishes
+      if (state.processingState == ProcessingState.completed) {
+        skipNext();
+      }
+      
       notifyListeners();
     });
   }

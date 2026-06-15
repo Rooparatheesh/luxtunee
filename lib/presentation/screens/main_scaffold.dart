@@ -6,7 +6,6 @@ import '../../providers/player_provider.dart';
 import '../../theme/app_theme.dart';
 import '../widgets/player/mini_player.dart';
 import 'home/home_screen.dart';
-import 'explore/explore_screen.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -20,7 +19,7 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   final List<Widget> _pages = [
     _PlaceholderPage(title: 'Home'),
-    const ExploreScreen(), // Online music streaming screen
+    _PlaceholderPage(title: 'Explore'),
     _PlaceholderPage(title: 'Search'),
     const HomeScreen(), // Using HomeScreen as the Library
   ];

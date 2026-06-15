@@ -14,12 +14,30 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final List<Map<String, String>> _categories = [
+    {'name': 'Trending', 'query': 'pop'},
+    {'name': 'Hindi Hits', 'query': 'hindi bollywood'},
+    {'name': 'Tamil', 'query': 'tamil anirudh'},
+    {'name': 'Malayalam', 'query': 'malayalam movie'},
+    {'name': 'Telugu', 'query': 'telugu movie'},
+    {'name': 'K-Pop', 'query': 'kpop bts'},
+    {'name': 'Global', 'query': 'billboard top 100'},
+  ];
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ExploreProvider>().fetchTrending();
+      if (context.read<ExploreProvider>().trendingTracks.isEmpty) {
+        context.read<ExploreProvider>().fetchTrending();
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -45,7 +63,92 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
             ),
             
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.librarySurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search_rounded, color: AppColors.textMuted),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        style: AppTypography.body(color: AppColors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Search for any song or language...',
+                          hintStyle: AppTypography.body(color: AppColors.textMuted),
+                          border: InputBorder.none,
+                        ),
+                        onSubmitted: (value) {
+                          if (value.trim().isNotEmpty) {
+                            context.read<ExploreProvider>().fetchTrending(
+                              query: value.trim(),
+                              categoryName: 'Search Results',
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Language/Genre Pills
+            SizedBox(
+              height: 36,
+              child: Consumer<ExploreProvider>(
+                builder: (context, explore, child) {
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _categories.length,
+                    itemBuilder: (context, index) {
+                      final category = _categories[index];
+                      final isSelected = explore.currentCategory == category['name'];
+                      
+                      return GestureDetector(
+                        onTap: () {
+                          _searchController.clear();
+                          explore.fetchTrending(
+                            query: category['query']!,
+                            categoryName: category['name']!,
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppColors.libraryPillActiveBg : AppColors.libraryPillBg,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            category['name']!,
+                            style: AppTypography.label(
+                              color: isSelected ? AppColors.white : AppColors.textLight,
+                              weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
+              ),
+            ),
+            
+            const SizedBox(height: 16),
             
             // Online Track List
             Expanded(

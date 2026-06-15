@@ -8,9 +8,13 @@ class ExploreProvider extends ChangeNotifier {
   List<TrackModel> trendingTracks = [];
   bool isLoading = false;
   String? error;
+  
+  String currentCategory = 'Trending';
+  String currentQuery = 'pop';
 
-  Future<void> fetchTrending() async {
-    if (trendingTracks.isNotEmpty) return;
+  Future<void> fetchTrending({String query = 'pop', String categoryName = 'Trending'}) async {
+    currentCategory = categoryName;
+    currentQuery = query;
     
     isLoading = true;
     error = null;
@@ -18,7 +22,9 @@ class ExploreProvider extends ChangeNotifier {
 
     try {
       // Free iTunes Search API for public demo
-      final url = Uri.parse('https://itunes.apple.com/search?term=pop&limit=20&media=music&entity=song');
+      // URL encode the query to handle spaces and special characters safely
+      final encodedQuery = Uri.encodeComponent(query);
+      final url = Uri.parse('https://itunes.apple.com/search?term=$encodedQuery&limit=25&media=music&entity=song');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

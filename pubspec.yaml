@@ -1,0 +1,41 @@
+name: luxtunee
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  google_fonts: ^8.1.0
+  provider: ^6.1.5+1
+  just_audio: ^0.10.5
+  flutter_animate: ^4.5.2
+  cached_network_image: ^3.4.1
+  go_router: ^17.2.3
+  palette_generator: ^0.3.3+7
+  on_audio_query: ^2.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  min_sdk_android: 21
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/images/yesu.jpg
+    - assets/images/sithrs.jpg
+    - assets/images/ks.jpg

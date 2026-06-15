@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "612138253371",
+    "project_id": "lextune-e8ece",
+    "storage_bucket": "lextune-e8ece.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612138253371:android:2064e4865a1dc95486f01e",
+        "android_client_info": {
+          "package_name": "com.example.luxtunee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612138253371-3pvkaovveon90qpt2ch7shjbenifaav9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.luxtunee",
+            "certificate_hash": "10b17729124f387ca44e9e81771b056dd44272ba"
+          }
+        },
+        {
+          "client_id": "612138253371-krir273cjbousrkr21l2g11s5jgiqroi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgjB2mDX-PVXEbgSQfTjV7GOV26UAfJWQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612138253371-krir273cjbousrkr21l2g11s5jgiqroi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

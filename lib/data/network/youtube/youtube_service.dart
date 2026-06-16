@@ -46,12 +46,29 @@ class YoutubeService {
   }
 
   /// Extracts the highest quality stream URL for a given video ID.
-  /// We use `muxed` (video+audio) streams because YouTube often blocks pure DASH `audioOnly` 
-  /// streams with a 403 Forbidden error in native players like ExoPlayer.
   Future<String> getStreamUrl(String videoId) async {
     try {
       final manifest = await _yt.videos.streamsClient.getManifest(videoId);
-      final streamInfo = manifest.muxed.withHighestBitrate();
+      StreamInfo? streamInfo;
+      
+      try {
+        // Muxed streams (video+audio) are much less likely to return 403 Forbidden on ExoPlayer
+        streamInfo = manifest.muxed.withHighestBitrate();
+      } catch (_) {
+        // Fallback to audioOnly if muxed is missing (e.g. Official Music tracks)
+        try {
+          final mp4Audio = manifest.audioOnly.where((s) => s.container.name == 'mp4');
+          if (mp4Audio.isNotEmpty) {
+            streamInfo = mp4Audio.withHighestBitrate();
+          } else {
+            streamInfo = manifest.audioOnly.withHighestBitrate();
+          }
+        } catch (_) {
+          // If all else fails
+          streamInfo = manifest.audioOnly.first;
+        }
+      }
+      
       return streamInfo.url.toString();
     } catch (e) {
       throw Exception('Failed to get YouTube stream URL: $e');

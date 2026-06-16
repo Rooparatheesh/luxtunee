@@ -1,12 +1,13 @@
-// lib/presentation/screens/player/player_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
+import 'package:marquee/marquee.dart';
 import '../../../providers/player_provider.dart';
 import '../../../theme/app_theme.dart';
-import 'dart:math' as math;
+import '../../components/animated_playback_controls.dart';
+import '../../components/wavy_slider.dart';
+import '../../components/queue_bottom_sheet.dart';
 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
@@ -18,6 +19,8 @@ class PlayerScreen extends StatefulWidget {
 class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderStateMixin {
   late AnimationController _enterCtrl;
   bool _isFavorite = false;
+  bool _isShuffle = false;
+  bool _isRepeat = false;
 
   @override
   void initState() {
@@ -51,79 +54,77 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
           body: SafeArea(
             child: FadeTransition(
               opacity: _enterCtrl,
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  
-                  // Top Bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () => Navigator.maybePop(context),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            color: Colors.transparent,
-                            child: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.white, size: 36),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      
+                      // 1. Top Bar
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildTopIconButton(
+                            icon: Icons.keyboard_arrow_down_rounded,
+                            onTap: () => Navigator.maybePop(context),
                           ),
-                        ),
-                        Text(
-                          'Now Playing',
-                          style: AppTypography.heading(size: 16),
-                        ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            color: Colors.transparent,
-                            child: const Icon(Icons.more_horiz_rounded, color: AppColors.white, size: 28),
+                          Text(
+                            'Now Playing',
+                            style: AppTypography.display(
+                              size: 16,
+                              weight: FontWeight.w700,
+                              color: AppColors.white,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  // Polaroid Album Art
-                  Transform.rotate(
-                    angle: -0.05, // Slight tilt like the screenshot
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.75,
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 48), // Bottom padding for polaroid look
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(4, 10),
+                          Row(
+                            children: [
+                              _buildTopIconButton(
+                                icon: Icons.cast_connected_rounded,
+                                onTap: () {},
+                              ),
+                              const SizedBox(width: 8),
+                              _buildTopIconButton(
+                                icon: Icons.queue_music_rounded,
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (context) => const FractionallySizedBox(
+                                      heightFactor: 0.9,
+                                      child: QueueBottomSheet(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      child: AspectRatio(
-                        aspectRatio: 1,
+
+                      const SizedBox(height: 40),
+
+                      // 2. The Album Art (Large Square)
+                      Container(
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.width - 48, // perfect square
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        clipBehavior: Clip.antiAlias,
                         child: track != null
                             ? (!track.isLocal && track.albumArt.isNotEmpty
                                 ? CachedNetworkImage(
                                     imageUrl: track.albumArt,
                                     fit: BoxFit.cover,
-                                    fadeInDuration: Duration.zero,
-                                    fadeOutDuration: Duration.zero,
-                                    placeholder: (context, url) => Container(
-                                      color: AppColors.libraryBackground,
-                                      child: const Center(
-                                        child: Icon(Icons.music_note_rounded, color: Colors.white54, size: 64),
-                                      ),
+                                    placeholder: (context, url) => const Center(
+                                      child: Icon(Icons.music_note_rounded, color: Colors.white24, size: 80),
                                     ),
-                                    errorWidget: (context, url, error) => Container(
-                                      color: AppColors.libraryBackground,
-                                      child: const Center(
-                                        child: Icon(Icons.music_note_rounded, color: Colors.white54, size: 64),
-                                      ),
+                                    errorWidget: (context, url, error) => const Center(
+                                      child: Icon(Icons.music_note_rounded, color: Colors.white24, size: 80),
                                     ),
                                   )
                                 : QueryArtworkWidget(
@@ -135,176 +136,185 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                     artworkWidth: double.infinity,
                                     artworkHeight: double.infinity,
                                     size: 1000,
-                                    nullArtworkWidget: Container(
-                                      color: AppColors.libraryBackground,
-                                      child: const Center(
-                                        child: Icon(Icons.music_note_rounded, color: Colors.white54, size: 64),
-                                      ),
+                                    nullArtworkWidget: const Center(
+                                      child: Icon(Icons.music_note_rounded, color: Colors.white24, size: 80),
                                     ),
                                   ))
-                            : Container(
-                                color: AppColors.libraryBackground,
-                                child: const Center(
-                                  child: Icon(Icons.music_note_rounded, color: Colors.white54, size: 64),
-                                ),
+                            : const Center(
+                                child: Icon(Icons.music_note_rounded, color: Colors.white24, size: 80),
                               ),
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(height: 50),
+                      const SizedBox(height: 40),
 
-                  // Title and Artist
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                track?.title ?? 'No Track',
-                                style: AppTypography.display(
-                                  size: 24,
-                                  weight: FontWeight.w800,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                track?.artist ?? '',
-                                style: AppTypography.body(
-                                  size: 14,
-                                  color: AppColors.white.withOpacity(0.7),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => setState(() => _isFavorite = !_isFavorite),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            color: Colors.transparent,
-                            child: Icon(
-                              _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                              color: _isFavorite ? AppColors.playerOrange : AppColors.white,
-                              size: 32,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Seek Bar and Timestamps
-                  StreamBuilder<Duration>(
-                    stream: player.positionStream,
-                    builder: (context, snapshot) {
-                      final position = snapshot.data ?? player.position;
-                      final duration = player.duration;
-                      final progress = duration.inSeconds > 0
-                          ? position.inSeconds / duration.inSeconds
-                          : 0.0;
-
-                      return Column(
+                      // 3. Track Info Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: SliderTheme(
-                              data: SliderTheme.of(context).copyWith(
-                                trackHeight: 4,
-                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                                activeTrackColor: AppColors.playerOrange,
-                                inactiveTrackColor: AppColors.white.withOpacity(0.3),
-                                thumbColor: AppColors.playerOrange,
-                              ),
-                              child: Slider(
-                                value: progress.clamp(0.0, 1.0),
-                                onChanged: (v) => player.seek(
-                                  Duration(seconds: (v * duration.inSeconds).round()),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _fmt(position),
-                                  style: AppTypography.label(color: AppColors.white.withOpacity(0.6)),
+                                  track?.title ?? 'No Track',
+                                  style: AppTypography.display(
+                                    size: 28,
+                                    weight: FontWeight.w800,
+                                    color: AppColors.white,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                Text(
-                                  _fmt(duration),
-                                  style: AppTypography.label(color: AppColors.white.withOpacity(0.6)),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  height: 20,
+                                  child: Marquee(
+                                    text: track?.artist ?? 'Unknown Artist',
+                                    style: AppTypography.body(
+                                      size: 16,
+                                      color: AppColors.white.withOpacity(0.7),
+                                      weight: FontWeight.w500,
+                                    ),
+                                    scrollAxis: Axis.horizontal,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    blankSpace: 40.0,
+                                    velocity: 30.0,
+                                    pauseAfterRound: const Duration(seconds: 2),
+                                    startPadding: 0.0,
+                                    accelerationDuration: const Duration(seconds: 1),
+                                    accelerationCurve: Curves.easeIn,
+                                    decelerationDuration: const Duration(milliseconds: 500),
+                                    decelerationCurve: Curves.easeOut,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
+                          const SizedBox(width: 16),
+                          Row(
+                            children: [
+                              _buildActionSquare(
+                                icon: Icons.lyrics_rounded,
+                                onTap: () {},
+                              ),
+                              const SizedBox(width: 8),
+                              _buildActionSquare(
+                                icon: Icons.more_vert_rounded,
+                                onTap: () {},
+                              ),
+                            ],
+                          ),
                         ],
-                      );
-                    },
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 4. Wavy Music Slider
+                      StreamBuilder<Duration>(
+                        stream: player.positionStream,
+                        builder: (context, snapshot) {
+                          final position = snapshot.data ?? player.position;
+                          final duration = player.duration;
+                          final progress = duration.inSeconds > 0
+                              ? position.inSeconds / duration.inSeconds
+                              : 0.0;
+
+                          return Column(
+                            children: [
+                              WavyMusicSlider(
+                                value: progress.clamp(0.0, 1.0),
+                                isPlaying: player.isPlaying,
+                                activeColor: AppColors.pillPaleOrange,
+                                inactiveColor: AppColors.white.withOpacity(0.2),
+                                onChanged: (v) {
+                                  player.seek(
+                                    Duration(seconds: (v * duration.inSeconds).round()),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    _fmt(position),
+                                    style: AppTypography.label(
+                                      size: 12,
+                                      color: AppColors.white,
+                                      weight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  // Quality Badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.white.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      '44.1 kHz • 720 kbps • FLAC',
+                                      style: AppTypography.label(
+                                        size: 10,
+                                        color: AppColors.white.withOpacity(0.8),
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    _fmt(duration),
+                                    style: AppTypography.label(
+                                      size: 12,
+                                      color: AppColors.white,
+                                      weight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 5. Playback Controls (Animated)
+                      AnimatedPlaybackControls(
+                        isPlaying: player.isPlaying,
+                        onPrevious: () => player.skipPrev(),
+                        onPlayPause: () => player.togglePlayPause(),
+                        onNext: () => player.skipNext(),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // 6. Bottom Action Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildBottomToggle(
+                            icon: Icons.shuffle_rounded,
+                            isActive: _isShuffle,
+                            onTap: () => setState(() => _isShuffle = !_isShuffle),
+                          ),
+                          const SizedBox(width: 16),
+                          _buildBottomToggle(
+                            icon: Icons.repeat_rounded,
+                            isActive: _isRepeat,
+                            onTap: () => setState(() => _isRepeat = !_isRepeat),
+                          ),
+                          const SizedBox(width: 16),
+                          _buildBottomToggle(
+                            icon: _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                            isActive: _isFavorite,
+                            onTap: () => setState(() => _isFavorite = !_isFavorite),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 40),
+                    ],
                   ),
-
-                  const Spacer(),
-
-                  // Playback Controls (Pills)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _PillButton(
-                          icon: Icons.skip_previous_rounded,
-                          color: AppColors.pillPaleOrange,
-                          onTap: () => player.skipPrev(),
-                        ),
-                        const SizedBox(width: 16),
-                        _PillButton(
-                          icon: player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                          color: AppColors.pillPaleGreen,
-                          isLarge: true,
-                          onTap: () => player.togglePlayPause(),
-                        ),
-                        const SizedBox(width: 16),
-                        _PillButton(
-                          icon: Icons.skip_next_rounded,
-                          color: AppColors.pillPaleOrange,
-                          onTap: () => player.skipNext(),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  // Bottom Controls (Shuffle, Loop, etc.)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _BottomIcon(icon: Icons.shuffle_rounded, onTap: () {}),
-                        _BottomIcon(icon: Icons.repeat_rounded, onTap: () {}),
-                        _BottomIcon(icon: Icons.queue_music_rounded, onTap: () {}),
-                        _BottomIcon(icon: Icons.share_rounded, onTap: () {}),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
             ),
           ),
@@ -312,69 +322,51 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
       },
     );
   }
-}
 
-class _PillButton extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final bool isLarge;
-  final VoidCallback onTap;
-
-  const _PillButton({
-    required this.icon,
-    required this.color,
-    this.isLarge = false,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTopIconButton({required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: isLarge ? 80 : 64,
-        height: isLarge ? 80 : 64,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(32),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          size: isLarge ? 36 : 28,
-          color: AppColors.playerBackground, // Deep brown icon
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomIcon extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _BottomIcon({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: AppColors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
         ),
+        child: Icon(icon, color: AppColors.white, size: 22),
+      ),
+    );
+  }
+
+  Widget _buildActionSquare({required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: AppColors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(icon, color: AppColors.white, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildBottomToggle({required IconData icon, required bool isActive, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.pillPaleOrange : AppColors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(24),
+        ),
         child: Icon(
           icon,
-          size: 20,
-          color: AppColors.white.withOpacity(0.9),
+          color: isActive ? AppColors.playerBackground : AppColors.white.withOpacity(0.8),
+          size: 24,
         ),
       ),
     );

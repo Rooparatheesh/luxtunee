@@ -20,8 +20,8 @@ class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0; // Default to Home tab
 
   final List<Widget> _pages = [
-    const DashboardScreen(),
-    const ExploreScreen(),
+    const DashboardScreen(), // Home screen with both online and offline
+    const ExploreScreen(), // Search/Explore
     const SettingsScreen(),
     const HomeScreen(), // Using HomeScreen as the Library
   ];

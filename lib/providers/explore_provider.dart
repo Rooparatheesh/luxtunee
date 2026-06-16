@@ -18,7 +18,7 @@ class ExploreProvider extends ChangeNotifier {
 
   String currentCategory = 'Trending';
   String currentQuery = '';
-  String currentSource = 'Deezer'; // Deezer, Navidrome, Jellyfin, NetEase
+  String currentSource = 'YouTube'; // Deezer, Navidrome, Jellyfin, NetEase, YouTube
 
   final DeezerService _deezerService = DeezerService();
   final LrcLibService _lrcLibService = LrcLibService();

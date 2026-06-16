@@ -251,10 +251,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           
                           return GestureDetector(
                             onTap: () {
-                              player.tracks = explore.trendingTracks;
                               player.playTrack(
-                                track, 
-                                urlResolver: (t) => explore.getAudioUrl(t),
+                                track,
+                                urlResolver: explore.getAudioUrl,
+                                newQueue: explore.trendingTracks,
                               );
                             },
                             child: Container(

@@ -10,7 +10,8 @@ class PlayerProvider extends ChangeNotifier {
   final LocalRepository _repo = LocalRepository();
 
   ConcatenatingAudioSource? _playlist;
-  List<TrackModel> tracks = [];
+  List<TrackModel> tracks = []; // The complete local library
+  List<TrackModel> queue = [];  // The currently active playlist/queue
   TrackModel? currentTrack;
   bool isPlaying = false;
   Duration position = Duration.zero;
@@ -28,9 +29,17 @@ class PlayerProvider extends ChangeNotifier {
       if (dur != null) duration = dur;
     });
     _player.currentIndexStream.listen((index) {
-      if (index != null && tracks.isNotEmpty && index < tracks.length) {
-        currentTrack = tracks[index];
-        notifyListeners();
+      if (index != null && queue.isNotEmpty) {
+        if (_currentResolver != null) {
+          // Dynamic single-track playlist. The index from just_audio is always 0.
+          // Do nothing, currentTrack is already correctly managed by playTrack and skipNext.
+        } else {
+          // Full ConcatenatingAudioSource (e.g. Local Library).
+          if (index < queue.length) {
+            currentTrack = queue[index];
+            notifyListeners();
+          }
+        }
       }
     });
     _player.playerStateStream.listen((state) {
@@ -58,29 +67,37 @@ class PlayerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> playTrack(TrackModel track, {Future<String> Function(TrackModel)? urlResolver}) async {
+  Future<void> playTrack(TrackModel track, {Future<String> Function(TrackModel)? urlResolver, List<TrackModel>? newQueue}) async {
     // Instantly update the UI so it feels snappy and doesn't lag
     currentTrack = track;
     if (urlResolver != null) _currentResolver = urlResolver;
-    notifyListeners();
-
-    if (tracks.isEmpty) {
-      tracks = [track];
+    
+    // Update the queue if a new one is provided, otherwise keep existing queue
+    if (newQueue != null) {
+      queue = List.from(newQueue);
+    } else if (queue.isEmpty) {
+      queue = List.from(tracks);
     }
     
-    final initialIndex = tracks.indexWhere((t) => t.id == track.id);
+    notifyListeners();
+
+    if (queue.isEmpty) {
+      queue = [track];
+    }
+    
+    final initialIndex = queue.indexWhere((t) => t.id == track.id);
     final targetIndex = initialIndex >= 0 ? initialIndex : 0;
 
     // Resolve URL for the current track if a resolver is provided and the URL is empty
     if (urlResolver != null && track.playbackSource.isEmpty) {
       final resolvedUrl = await urlResolver(track);
-      // Update the track in our list with the new URL
-      tracks[targetIndex] = track.copyWith(audioUrl: resolvedUrl);
-      track = tracks[targetIndex];
+      // Update the track in our queue with the new URL
+      queue[targetIndex] = track.copyWith(audioUrl: resolvedUrl);
+      track = queue[targetIndex];
     }
     
     // Build playlist for just_audio_background
-    final children = tracks.map((t) {
+    final children = queue.map((t) {
       final isRemote = !t.isLocal;
       final artUri = isRemote && t.albumArt.isNotEmpty 
           ? Uri.parse(t.albumArt) 
@@ -103,7 +120,7 @@ class PlayerProvider extends ChangeNotifier {
     // If we rely on dynamic URL resolution (like YouTube), building a full ConcatenatingAudioSource 
     // with dummy URLs causes just_audio to crash when pre-buffering the next track.
     // As a workaround, we only provide the current track to the player.
-    if (urlResolver != null && tracks[targetIndex].playbackSource.isNotEmpty) {
+    if (urlResolver != null && queue[targetIndex].playbackSource.isNotEmpty) {
       _playlist = ConcatenatingAudioSource(children: [children[targetIndex]]);
       await _player.setAudioSource(_playlist!, initialIndex: 0);
     } else {
@@ -126,23 +143,24 @@ class PlayerProvider extends ChangeNotifier {
   Future<String> Function(TrackModel)? _currentResolver;
 
   Future<void> skipNext() async {
-    if (tracks.isEmpty) return;
-    final currentIndex = tracks.indexWhere((t) => t.id == currentTrack?.id);
-    if (currentIndex >= 0 && currentIndex < tracks.length - 1) {
-      await playTrack(tracks[currentIndex + 1], urlResolver: _currentResolver);
+    if (queue.isEmpty) return;
+    final currentIndex = queue.indexWhere((t) => t.id == currentTrack?.id);
+    if (currentIndex >= 0 && currentIndex < queue.length - 1) {
+      await playTrack(queue[currentIndex + 1], urlResolver: _currentResolver);
     }
   }
 
   Future<void> skipPrev() async {
-    if (tracks.isEmpty) return;
-    final currentIndex = tracks.indexWhere((t) => t.id == currentTrack?.id);
+    if (queue.isEmpty) return;
+    final currentIndex = queue.indexWhere((t) => t.id == currentTrack?.id);
     if (currentIndex > 0) {
-      await playTrack(tracks[currentIndex - 1], urlResolver: _currentResolver);
+      await playTrack(queue[currentIndex - 1], urlResolver: _currentResolver);
     }
   }
 
   void removeTrack(TrackModel track) {
     tracks.removeWhere((t) => t.id == track.id);
+    queue.removeWhere((t) => t.id == track.id);
     if (currentTrack?.id == track.id) {
       _player.stop();
       currentTrack = null;

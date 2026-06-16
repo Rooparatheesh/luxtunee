@@ -1,8 +1,34 @@
 import 'package:flutter/material.dart';
-import '../../../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
-class DashboardScreen extends StatelessWidget {
+import '../../../theme/app_theme.dart';
+import '../../../providers/player_provider.dart';
+import '../../../providers/explore_provider.dart';
+
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final explore = context.read<ExploreProvider>();
+      if (explore.trendingTracks.isEmpty) {
+        explore.fetchTrending();
+      }
+      final player = context.read<PlayerProvider>();
+      if (player.tracks.isEmpty && !player.isLoading) {
+        player.loadLibrary();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +56,158 @@ class DashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               
-              // Placeholders for content
-              _buildSectionTitle('Recently Played'),
-              const SizedBox(height: 16),
-              _buildPlaceholderCards(),
-              
-              const SizedBox(height: 32),
-              _buildSectionTitle('Your Mixes'),
-              const SizedBox(height: 16),
-              _buildPlaceholderCards(),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Online Songs
+                      _buildSectionTitle('Online Trending'),
+                      const SizedBox(height: 16),
+                      Consumer<ExploreProvider>(
+                        builder: (context, explore, _) {
+                          if (explore.isLoading) {
+                            return const SizedBox(
+                              height: 160, 
+                              child: Center(child: CircularProgressIndicator(color: AppColors.libraryTextGreen))
+                            );
+                          }
+                          if (explore.trendingTracks.isEmpty) {
+                            return const SizedBox(height: 160, child: Center(child: Text('No online tracks', style: TextStyle(color: Colors.white))));
+                          }
+                          return SizedBox(
+                            height: 160,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: explore.trendingTracks.length,
+                              itemBuilder: (context, index) {
+                                final track = explore.trendingTracks[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    context.read<PlayerProvider>().playTrack(
+                                      track,
+                                      urlResolver: explore.getAudioUrl,
+                                      newQueue: explore.trendingTracks,
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 120,
+                                    margin: const EdgeInsets.only(right: 16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          height: 120,
+                                          width: 120,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.librarySurface,
+                                            borderRadius: BorderRadius.circular(16),
+                                            image: track.albumArt.isNotEmpty
+                                                ? DecorationImage(
+                                                    image: CachedNetworkImageProvider(track.albumArt),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : null,
+                                          ),
+                                          child: track.albumArt.isEmpty
+                                              ? const Center(child: Icon(Icons.music_note_rounded, size: 48, color: AppColors.textMuted))
+                                              : null,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          track.title,
+                                          style: AppTypography.body(color: AppColors.white, weight: FontWeight.w600),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // Offline Songs
+                      _buildSectionTitle('Local Offline Music'),
+                      const SizedBox(height: 16),
+                      Consumer<PlayerProvider>(
+                        builder: (context, player, _) {
+                          if (player.isLoading) {
+                            return const SizedBox(
+                              height: 160, 
+                              child: Center(child: CircularProgressIndicator(color: AppColors.libraryTextGreen))
+                            );
+                          }
+                          if (player.tracks.isEmpty) {
+                            return const SizedBox(height: 160, child: Center(child: Text('No offline tracks found', style: TextStyle(color: Colors.white))));
+                          }
+                          return SizedBox(
+                            height: 160,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: player.tracks.length,
+                              itemBuilder: (context, index) {
+                                final track = player.tracks[index];
+                                return GestureDetector(
+                                  onTap: () => player.playTrack(
+                                    track,
+                                    newQueue: player.tracks,
+                                  ),
+                                  child: Container(
+                                    width: 120,
+                                    margin: const EdgeInsets.only(right: 16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          height: 120,
+                                          width: 120,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.librarySurface,
+                                            borderRadius: BorderRadius.circular(16),
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(16),
+                                            child: QueryArtworkWidget(
+                                              id: track.albumId ?? 0,
+                                              type: ArtworkType.ALBUM,
+                                              keepOldArtwork: true,
+                                              artworkFit: BoxFit.cover,
+                                              nullArtworkWidget: const Center(
+                                                child: Icon(Icons.music_note_rounded, color: AppColors.textMuted, size: 48),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          track.title,
+                                          style: AppTypography.body(color: AppColors.white, weight: FontWeight.w600),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 100), // padding for miniplayer
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -53,29 +222,6 @@ class DashboardScreen extends StatelessWidget {
         size: 20,
         weight: FontWeight.w600,
         color: AppColors.white,
-      ),
-    );
-  }
-
-  Widget _buildPlaceholderCards() {
-    return SizedBox(
-      height: 140,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          return Container(
-            width: 140,
-            margin: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              color: AppColors.librarySurface,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Center(
-              child: Icon(Icons.music_note_rounded, size: 48, color: AppColors.textMuted),
-            ),
-          );
-        },
       ),
     );
   }

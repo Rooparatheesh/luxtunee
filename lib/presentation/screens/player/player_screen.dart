@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/player_provider.dart';
 import '../../../theme/app_theme.dart';
@@ -60,17 +61,25 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.white, size: 32),
-                          onPressed: () => Navigator.maybePop(context),
+                        GestureDetector(
+                          onTap: () => Navigator.maybePop(context),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            color: Colors.transparent,
+                            child: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.white, size: 36),
+                          ),
                         ),
                         Text(
                           'Now Playing',
                           style: AppTypography.heading(size: 16),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.more_horiz_rounded, color: AppColors.white, size: 28),
-                          onPressed: () {},
+                        GestureDetector(
+                          onTap: () {},
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            color: Colors.transparent,
+                            child: const Icon(Icons.more_horiz_rounded, color: AppColors.white, size: 28),
+                          ),
                         ),
                       ],
                     ),
@@ -98,21 +107,41 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                       child: AspectRatio(
                         aspectRatio: 1,
                         child: track != null
-                            ? QueryArtworkWidget(
-                                id: track.albumId ?? 0,
-                                type: ArtworkType.ALBUM,
-                                artworkBorder: BorderRadius.zero,
-                                artworkFit: BoxFit.cover,
-                                artworkWidth: double.infinity,
-                                artworkHeight: double.infinity,
-                                size: 1000,
-                                nullArtworkWidget: Container(
-                                  color: AppColors.libraryBackground,
-                                  child: const Center(
-                                    child: Icon(Icons.music_note_rounded, color: Colors.white54, size: 64),
-                                  ),
-                                ),
-                              )
+                            ? (!track.isLocal && track.albumArt.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: track.albumArt,
+                                    fit: BoxFit.cover,
+                                    fadeInDuration: Duration.zero,
+                                    fadeOutDuration: Duration.zero,
+                                    placeholder: (context, url) => Container(
+                                      color: AppColors.libraryBackground,
+                                      child: const Center(
+                                        child: Icon(Icons.music_note_rounded, color: Colors.white54, size: 64),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) => Container(
+                                      color: AppColors.libraryBackground,
+                                      child: const Center(
+                                        child: Icon(Icons.music_note_rounded, color: Colors.white54, size: 64),
+                                      ),
+                                    ),
+                                  )
+                                : QueryArtworkWidget(
+                                    id: track.albumId ?? 0,
+                                    type: ArtworkType.ALBUM,
+                                    keepOldArtwork: true,
+                                    artworkBorder: BorderRadius.zero,
+                                    artworkFit: BoxFit.cover,
+                                    artworkWidth: double.infinity,
+                                    artworkHeight: double.infinity,
+                                    size: 1000,
+                                    nullArtworkWidget: Container(
+                                      color: AppColors.libraryBackground,
+                                      child: const Center(
+                                        child: Icon(Icons.music_note_rounded, color: Colors.white54, size: 64),
+                                      ),
+                                    ),
+                                  ))
                             : Container(
                                 color: AppColors.libraryBackground,
                                 child: const Center(
@@ -158,13 +187,17 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                            color: _isFavorite ? AppColors.playerOrange : AppColors.white,
-                            size: 28,
+                        GestureDetector(
+                          onTap: () => setState(() => _isFavorite = !_isFavorite),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            color: Colors.transparent,
+                            child: Icon(
+                              _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                              color: _isFavorite ? AppColors.playerOrange : AppColors.white,
+                              size: 32,
+                            ),
                           ),
-                          onPressed: () => setState(() => _isFavorite = !_isFavorite),
                         ),
                       ],
                     ),

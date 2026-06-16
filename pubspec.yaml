@@ -21,6 +21,12 @@ dependencies:
   palette_generator: ^0.3.3+7
   http: ^1.2.0
   on_audio_query: ^2.9.0
+  crypto: ^3.0.7
+  encrypt: ^5.0.3
+  shared_preferences: ^2.5.5
+  uuid: ^4.3.3
+  archive: ^3.4.9
+  youtube_explode_dart: ^3.1.0
 
 dev_dependencies:
   flutter_test:

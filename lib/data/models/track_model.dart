@@ -13,6 +13,8 @@ class TrackModel {
   final int? albumId; // for QueryArtworkWidget
   final bool isFavorite;
   final String lyrics;
+  final String source; // 'local', 'deezer', 'itunes', 'navidrome', etc.
+  final String syncedLyrics; // LRC formatted synced lyrics
 
   const TrackModel({
     required this.id,
@@ -26,6 +28,8 @@ class TrackModel {
     this.albumId,
     this.isFavorite = false,
     this.lyrics = '',
+    this.source = 'local',
+    this.syncedLyrics = '',
   });
 
   TrackModel copyWith({
@@ -40,6 +44,8 @@ class TrackModel {
     int? albumId,
     bool? isFavorite,
     String? lyrics,
+    String? source,
+    String? syncedLyrics,
   }) => TrackModel(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -52,6 +58,8 @@ class TrackModel {
     albumId: albumId ?? this.albumId,
     isFavorite: isFavorite ?? this.isFavorite,
     lyrics: lyrics ?? this.lyrics,
+    source: source ?? this.source,
+    syncedLyrics: syncedLyrics ?? this.syncedLyrics,
   );
 
   /// Use local URI if available, fall back to remote URL

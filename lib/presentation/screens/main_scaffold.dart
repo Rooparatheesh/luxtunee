@@ -1,11 +1,13 @@
 // lib/presentation/screens/main_scaffold.dart
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/player_provider.dart';
 import '../../theme/app_theme.dart';
 import '../widgets/player/mini_player.dart';
+import 'explore/explore_screen.dart';
+import 'settings/settings_screen.dart';
 import 'home/home_screen.dart';
+
+import 'home/dashboard_screen.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -15,12 +17,12 @@ class MainScaffold extends StatefulWidget {
 }
 
 class _MainScaffoldState extends State<MainScaffold> {
-  int _currentIndex = 3; // Default to Library tab as requested
+  int _currentIndex = 0; // Default to Home tab
 
   final List<Widget> _pages = [
-    _PlaceholderPage(title: 'Home'),
-    _PlaceholderPage(title: 'Explore'),
-    _PlaceholderPage(title: 'Search'),
+    const DashboardScreen(),
+    const ExploreScreen(),
+    const SettingsScreen(),
     const HomeScreen(), // Using HomeScreen as the Library
   ];
 
@@ -77,7 +79,7 @@ class _MainScaffoldState extends State<MainScaffold> {
             items: [
               _buildNavItem(Icons.home_rounded, 'Home', 0),
               _buildNavItem(Icons.explore_rounded, 'Explore', 1),
-              _buildNavItem(Icons.search_rounded, 'Search', 2),
+              _buildNavItem(Icons.settings_rounded, 'Settings', 2),
               _buildNavItem(Icons.library_music_rounded, 'Library', 3),
             ],
           ),
@@ -98,21 +100,6 @@ class _MainScaffoldState extends State<MainScaffold> {
         child: Icon(icon, size: 24),
       ),
       label: label,
-    );
-  }
-}
-
-class _PlaceholderPage extends StatelessWidget {
-  final String title;
-  const _PlaceholderPage({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        title,
-        style: AppTypography.heading(color: AppColors.textMuted),
-      ),
     );
   }
 }

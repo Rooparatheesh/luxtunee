@@ -167,7 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       final isPlaying = player.currentTrack?.id == track.id;
                       
                       return GestureDetector(
-                        onTap: () => player.playTrack(track),
+                        onTap: () {
+                          player.tracks = filteredTracks;
+                          player.playTrack(track);
+                        },
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 16),
                           child: Row(

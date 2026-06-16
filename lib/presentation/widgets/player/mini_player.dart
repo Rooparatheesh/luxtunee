@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/player_provider.dart';
 import '../../../theme/app_theme.dart';
@@ -55,17 +56,33 @@ class MiniPlayer extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: QueryArtworkWidget(
-                    id: track.albumId ?? 0,
-                    type: ArtworkType.ALBUM,
-                    nullArtworkWidget: Container(
-                      color: AppColors.libraryBackground,
-                      child: const Icon(
-                        Icons.music_note_rounded,
-                        color: Colors.white54,
-                      ),
-                    ),
-                  ),
+                  child: !track.isLocal && track.albumArt.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: track.albumArt,
+                          fit: BoxFit.cover,
+                          fadeInDuration: Duration.zero,
+                          fadeOutDuration: Duration.zero,
+                          placeholder: (context, url) => Container(
+                            color: AppColors.libraryBackground,
+                            child: const Icon(Icons.music_note_rounded, color: Colors.white54),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: AppColors.libraryBackground,
+                            child: const Icon(Icons.music_note_rounded, color: Colors.white54),
+                          ),
+                        )
+                      : QueryArtworkWidget(
+                          id: track.albumId ?? 0,
+                          type: ArtworkType.ALBUM,
+                          keepOldArtwork: true,
+                          nullArtworkWidget: Container(
+                            color: AppColors.libraryBackground,
+                            child: const Icon(
+                              Icons.music_note_rounded,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 12),
                 
@@ -102,16 +119,26 @@ class MiniPlayer extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      icon: Icon(
-                        player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                        color: AppColors.white,
+                    GestureDetector(
+                      onTap: () => player.togglePlayPause(),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        color: Colors.transparent, // Ensure gesture area
+                        child: Icon(
+                          player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          color: AppColors.white,
+                          size: 32,
+                        ),
                       ),
-                      onPressed: () => player.togglePlayPause(),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.skip_next_rounded, color: AppColors.white),
-                      onPressed: () => player.skipNext(),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () => player.skipNext(),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        color: Colors.transparent, // Ensure gesture area
+                        child: const Icon(Icons.skip_next_rounded, color: AppColors.white, size: 32),
+                      ),
                     ),
                   ],
                 ),

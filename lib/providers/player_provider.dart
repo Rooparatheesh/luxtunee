@@ -9,6 +9,7 @@ class PlayerProvider extends ChangeNotifier {
   final AudioPlayer _player = AudioPlayer();
   final LocalRepository _repo = LocalRepository();
 
+  ConcatenatingAudioSource? _playlist;
   List<TrackModel> tracks = [];
   TrackModel? currentTrack;
   bool isPlaying = false;
@@ -26,14 +27,20 @@ class PlayerProvider extends ChangeNotifier {
     _player.durationStream.listen((dur) {
       if (dur != null) duration = dur;
     });
+    _player.currentIndexStream.listen((index) {
+      if (index != null && tracks.isNotEmpty && index < tracks.length) {
+        currentTrack = tracks[index];
+        notifyListeners();
+      }
+    });
     _player.playerStateStream.listen((state) {
       isPlaying = state.playing;
-      
-      // Automatically skip to the next track when the current one finishes
       if (state.processingState == ProcessingState.completed) {
-        skipNext();
+        // Automatically play next track if we're using dynamic resolution and track finishes
+        if (_currentResolver != null) {
+          skipNext();
+        }
       }
-      
       notifyListeners();
     });
   }
@@ -51,28 +58,60 @@ class PlayerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> playTrack(TrackModel track) async {
+  Future<void> playTrack(TrackModel track, {Future<String> Function(TrackModel)? urlResolver}) async {
+    // Instantly update the UI so it feels snappy and doesn't lag
     currentTrack = track;
-    notifyListeners(); // Update UI immediately so it feels snappy
-    
-    // Check if the track is remote or local
-    final isRemote = !track.isLocal;
-    final artUri = isRemote && track.albumArt.isNotEmpty 
-        ? Uri.parse(track.albumArt) 
-        : Uri.parse('content://media/external/audio/albumart/${track.albumId ?? 0}');
-
-    await _player.setAudioSource(AudioSource.uri(
-      Uri.parse(track.playbackSource),
-      tag: MediaItem(
-        id: track.id.toString(),
-        album: track.album,
-        title: track.title,
-        artist: track.artist,
-        artUri: artUri,
-      ),
-    ));
-    await _player.play();
+    if (urlResolver != null) _currentResolver = urlResolver;
     notifyListeners();
+
+    if (tracks.isEmpty) {
+      tracks = [track];
+    }
+    
+    final initialIndex = tracks.indexWhere((t) => t.id == track.id);
+    final targetIndex = initialIndex >= 0 ? initialIndex : 0;
+
+    // Resolve URL for the current track if a resolver is provided and the URL is empty
+    if (urlResolver != null && track.playbackSource.isEmpty) {
+      final resolvedUrl = await urlResolver(track);
+      // Update the track in our list with the new URL
+      tracks[targetIndex] = track.copyWith(audioUrl: resolvedUrl);
+      track = tracks[targetIndex];
+    }
+    
+    // Build playlist for just_audio_background
+    final children = tracks.map((t) {
+      final isRemote = !t.isLocal;
+      final artUri = isRemote && t.albumArt.isNotEmpty 
+          ? Uri.parse(t.albumArt) 
+          : Uri.parse('content://media/external/audio/albumart/${t.albumId ?? 0}');
+      
+      final url = t.playbackSource.isNotEmpty ? t.playbackSource : 'http://dummy.url/empty.mp3';
+
+      return AudioSource.uri(
+        Uri.parse(url),
+        tag: MediaItem(
+          id: t.id.toString(),
+          album: t.album,
+          title: t.title,
+          artist: t.artist,
+          artUri: artUri,
+        ),
+      );
+    }).toList();
+
+    // If we rely on dynamic URL resolution (like YouTube), building a full ConcatenatingAudioSource 
+    // with dummy URLs causes just_audio to crash when pre-buffering the next track.
+    // As a workaround, we only provide the current track to the player.
+    if (urlResolver != null && tracks[targetIndex].playbackSource.isNotEmpty) {
+      _playlist = ConcatenatingAudioSource(children: [children[targetIndex]]);
+      await _player.setAudioSource(_playlist!, initialIndex: 0);
+    } else {
+      _playlist = ConcatenatingAudioSource(children: children);
+      await _player.setAudioSource(_playlist!, initialIndex: targetIndex);
+    }
+
+    await _player.play();
   }
 
   Future<void> togglePlayPause() async {
@@ -83,16 +122,23 @@ class PlayerProvider extends ChangeNotifier {
     await _player.seek(position);
   }
 
+  // We store the current resolver so we can reuse it when skipping tracks
+  Future<String> Function(TrackModel)? _currentResolver;
+
   Future<void> skipNext() async {
-    if (currentTrack == null || tracks.isEmpty) return;
-    final idx = tracks.indexWhere((t) => t.id == currentTrack!.id);
-    if (idx < tracks.length - 1) await playTrack(tracks[idx + 1]);
+    if (tracks.isEmpty) return;
+    final currentIndex = tracks.indexWhere((t) => t.id == currentTrack?.id);
+    if (currentIndex >= 0 && currentIndex < tracks.length - 1) {
+      await playTrack(tracks[currentIndex + 1], urlResolver: _currentResolver);
+    }
   }
 
   Future<void> skipPrev() async {
-    if (currentTrack == null || tracks.isEmpty) return;
-    final idx = tracks.indexWhere((t) => t.id == currentTrack!.id);
-    if (idx > 0) await playTrack(tracks[idx - 1]);
+    if (tracks.isEmpty) return;
+    final currentIndex = tracks.indexWhere((t) => t.id == currentTrack?.id);
+    if (currentIndex > 0) {
+      await playTrack(tracks[currentIndex - 1], urlResolver: _currentResolver);
+    }
   }
 
   void removeTrack(TrackModel track) {

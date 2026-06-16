@@ -8,6 +8,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 
 import 'presentation/screens/splash/splash_screen.dart';
 import 'providers/player_provider.dart';
+import 'providers/explore_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PlayerProvider()),
+        ChangeNotifierProvider(create: (_) => ExploreProvider()),
       ],
       child: const LuxTuneApp(),
     ),

@@ -16,13 +16,13 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   final TextEditingController _searchController = TextEditingController();
   final List<Map<String, String>> _categories = [
-    {'name': 'Trending', 'query': 'pop'},
-    {'name': 'Hindi Hits', 'query': 'hindi bollywood'},
-    {'name': 'Tamil', 'query': 'tamil anirudh'},
-    {'name': 'Malayalam', 'query': 'malayalam movie'},
-    {'name': 'Telugu', 'query': 'telugu movie'},
-    {'name': 'K-Pop', 'query': 'kpop bts'},
-    {'name': 'Global', 'query': 'billboard top 100'},
+    {'name': 'Trending', 'query': ''},
+    {'name': 'Hindi Hits', 'query': 'bollywood hindi'},
+    {'name': 'Tamil', 'query': 'tamil songs'},
+    {'name': 'Malayalam', 'query': 'malayalam songs'},
+    {'name': 'Telugu', 'query': 'telugu songs'},
+    {'name': 'K-Pop', 'query': 'kpop'},
+    {'name': 'Global', 'query': 'top hits'},
   ];
   @override
   void initState() {
@@ -60,6 +60,52 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   weight: FontWeight.w700,
                   color: AppColors.libraryTextGreen,
                 ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+
+            // Source Selector
+            SizedBox(
+              height: 32,
+              child: Consumer<ExploreProvider>(
+                builder: (context, explore, child) {
+                  final sources = ['Deezer', 'YouTube', 'Navidrome', 'Jellyfin', 'NetEase'];
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: sources.length,
+                    itemBuilder: (context, index) {
+                      final source = sources[index];
+                      final isSelected = explore.currentSource == source;
+                      return GestureDetector(
+                        onTap: () {
+                          _searchController.clear();
+                          explore.setSource(source);
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppColors.playerOrange : Colors.transparent,
+                            border: Border.all(
+                              color: isSelected ? AppColors.playerOrange : AppColors.textMuted,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            source,
+                            style: AppTypography.label(
+                              color: isSelected ? AppColors.white : AppColors.textMuted,
+                              weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
               ),
             ),
             
@@ -204,7 +250,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           final isPlaying = player.currentTrack?.id == track.id;
                           
                           return GestureDetector(
-                            onTap: () => player.playTrack(track),
+                            onTap: () {
+                              player.tracks = explore.trendingTracks;
+                              player.playTrack(
+                                track, 
+                                urlResolver: (t) => explore.getAudioUrl(t),
+                              );
+                            },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 16),
                               child: Row(
@@ -221,6 +273,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                     child: CachedNetworkImage(
                                       imageUrl: track.albumArt,
                                       fit: BoxFit.cover,
+                                      fadeInDuration: Duration.zero,
+                                      fadeOutDuration: Duration.zero,
                                       placeholder: (context, url) => const Center(
                                         child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.libraryTextGreen),
                                       ),

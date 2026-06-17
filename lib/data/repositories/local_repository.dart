@@ -19,6 +19,12 @@ class LocalRepository {
 
     return songs
         .where((s) => s.duration != null && s.duration! > 30000) // skip <30s
+        .where((s) {
+          final path = s.data.toLowerCase();
+          return !path.contains('whatsapp') && 
+                 !path.contains('voice') && 
+                 !path.contains('record');
+        })
         .map(
           (s) => TrackModel(
             id: s.id.toString(),

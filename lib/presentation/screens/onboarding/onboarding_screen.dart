@@ -35,7 +35,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
     _enterCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 200),
     );
 
     _floatCtrl = AnimationController(
@@ -110,7 +110,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
           child: child,
         ),
-        transitionDuration: const Duration(milliseconds: 450),
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }

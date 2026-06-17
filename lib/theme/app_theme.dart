@@ -114,4 +114,46 @@ class AppTheme {
       },
     ),
   );
+
+  static ThemeData get light => ThemeData(
+    useMaterial3: true,
+    scaffoldBackgroundColor: const Color(0xFFF0F0F5),
+    colorScheme: const ColorScheme.light().copyWith(
+      primary: const Color(0xFF4A7C59),
+      secondary: const Color(0xFFE87A24),
+      surface: const Color(0xFFFFFFFF),
+      onPrimary: const Color(0xFFFFFFFF),
+      onSecondary: const Color(0xFFFFFFFF),
+      onSurface: const Color(0xFF1E1B26),
+    ),
+    canvasColor: const Color(0xFFF0F0F5),
+    cardColor: const Color(0xFFFFFFFF),
+    textTheme: TextTheme(
+      displayLarge: AppTypography.display(size: 40, color: AppColors.black),
+      displayMedium: AppTypography.display(size: 32, color: AppColors.black),
+      headlineLarge: AppTypography.heading(size: 26, color: AppColors.black),
+      headlineMedium: AppTypography.heading(size: 22, color: AppColors.black),
+      headlineSmall: AppTypography.heading(size: 18, color: AppColors.black),
+      bodyLarge: AppTypography.body(size: 16, color: AppColors.black),
+      bodyMedium: AppTypography.body(size: 14, color: AppColors.textMuted),
+      bodySmall: AppTypography.body(size: 12, color: AppColors.textMuted),
+      labelLarge: AppTypography.label(size: 13, color: AppColors.textMuted),
+      labelSmall: AppTypography.label(size: 10, color: AppColors.textMuted),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: const Color(0xFFF0F0F5),
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: AppTypography.heading(size: 16, color: AppColors.black),
+      iconTheme: const IconThemeData(color: AppColors.black),
+    ),
+    dividerColor: AppColors.textMuted.withOpacity(0.2),
+    iconTheme: const IconThemeData(color: AppColors.black),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+  );
 }

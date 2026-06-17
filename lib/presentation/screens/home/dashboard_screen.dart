@@ -179,6 +179,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             child: QueryArtworkWidget(
                                               id: track.albumId ?? 0,
                                               type: ArtworkType.ALBUM,
+                                              artworkBorder: BorderRadius.zero,
                                               keepOldArtwork: true,
                                               artworkFit: BoxFit.cover,
                                               nullArtworkWidget: const Center(
@@ -186,6 +187,86 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               ),
                                             ),
                                           ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          track.title,
+                                          style: AppTypography.body(color: AppColors.white, weight: FontWeight.w600),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // Favorite Songs
+                      _buildSectionTitle('Your Favorites'),
+                      const SizedBox(height: 16),
+                      Consumer<PlayerProvider>(
+                        builder: (context, player, _) {
+                          if (player.favoriteTracks.isEmpty) {
+                            return const SizedBox(
+                              height: 160, 
+                              child: Center(
+                                child: Text('No favorite tracks yet', style: TextStyle(color: Colors.white70))
+                              )
+                            );
+                          }
+                          return SizedBox(
+                            height: 160,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: player.favoriteTracks.length,
+                              itemBuilder: (context, index) {
+                                final track = player.favoriteTracks[index];
+                                return GestureDetector(
+                                  onTap: () => player.playTrack(
+                                    track,
+                                    newQueue: player.favoriteTracks,
+                                  ),
+                                  child: Container(
+                                    width: 120,
+                                    margin: const EdgeInsets.only(right: 16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          height: 120,
+                                          width: 120,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.librarySurface,
+                                            borderRadius: BorderRadius.circular(16),
+                                            image: track.albumArt.isNotEmpty
+                                                ? DecorationImage(
+                                                    image: CachedNetworkImageProvider(track.albumArt),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : null,
+                                          ),
+                                          child: track.albumArt.isEmpty
+                                              ? (track.isLocal ? ClipRRect(
+                                                  borderRadius: BorderRadius.circular(16),
+                                                  child: QueryArtworkWidget(
+                                                    id: track.albumId ?? 0,
+                                                    type: ArtworkType.ALBUM,
+                                                    artworkBorder: BorderRadius.zero,
+                                                    keepOldArtwork: true,
+                                                    artworkFit: BoxFit.cover,
+                                                    nullArtworkWidget: const Center(
+                                                      child: Icon(Icons.music_note_rounded, color: AppColors.textMuted, size: 48),
+                                                    ),
+                                                  ),
+                                                ) : const Center(child: Icon(Icons.music_note_rounded, color: AppColors.textMuted, size: 48)))
+                                              : null,
                                         ),
                                         const SizedBox(height: 8),
                                         Text(

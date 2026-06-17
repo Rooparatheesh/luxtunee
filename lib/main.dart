@@ -9,6 +9,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'presentation/screens/splash/splash_screen.dart';
 import 'providers/player_provider.dart';
 import 'providers/explore_provider.dart';
+import 'providers/theme_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => PlayerProvider()),
         ChangeNotifierProvider(create: (_) => ExploreProvider()),
       ],
@@ -50,10 +52,14 @@ class LuxTuneApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    
     return MaterialApp(
       title: 'LuxTune',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      themeMode: themeProvider.themeMode,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       home: const SplashScreen(),
     );
   }

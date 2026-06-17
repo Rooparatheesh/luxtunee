@@ -131,29 +131,32 @@ class _WavySliderPainter extends CustomPainter {
       inactivePaint,
     );
 
-    // Draw active track (wavy line)
     final path = Path();
-    path.moveTo(0, centerY);
 
     if (isSquiggly) {
       final frequency = 30.0; // Wavelength in pixels
       final amplitude = 4.0; // Height of wave
       
-      for (double x = 0; x <= activeWidth; x += 1.0) {
-        // We shift the phase backwards so the wave flows to the right
-        final y = centerY + math.sin((x / frequency) * math.pi * 2 - phase) * amplitude;
+      // Move exactly to the first calculated wave point to avoid a vertical line glitch
+      final startY = centerY + math.sin(phase) * amplitude;
+      path.moveTo(0, startY);
+      
+      for (double x = 1.0; x <= activeWidth; x += 1.0) {
+        // Shift phase forward so the wave flows to the left (backwards)
+        final y = centerY + math.sin((x / frequency) * math.pi * 2 + phase) * amplitude;
         path.lineTo(x, y);
       }
     } else {
+      path.moveTo(0, centerY);
       path.lineTo(activeWidth, centerY);
     }
 
     canvas.drawPath(path, activePaint);
-
-    // Draw thumb
+    
+    // Draw thumb at the end of the wave
     final thumbPaint = Paint()..color = activeColor;
     final thumbY = isSquiggly 
-        ? centerY + math.sin((activeWidth / 30.0) * math.pi * 2 - phase) * 4.0
+        ? centerY + math.sin((activeWidth / 30.0) * math.pi * 2 + phase) * 4.0
         : centerY;
         
     canvas.drawCircle(Offset(activeWidth, thumbY), 8.0, thumbPaint);

@@ -54,13 +54,11 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
           body: SafeArea(
             child: FadeTransition(
               opacity: _enterCtrl,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
                       
                       // 1. Top Bar
                       Row(
@@ -104,7 +102,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                         ],
                       ),
 
-                      const SizedBox(height: 40),
+                      const Spacer(),
 
                       // 2. The Album Art (Large Square)
                       Container(
@@ -145,7 +143,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                               ),
                       ),
 
-                      const SizedBox(height: 40),
+                      const Spacer(),
 
                       // 3. Track Info Row
                       Row(
@@ -195,6 +193,17 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                           Row(
                             children: [
                               _buildActionSquare(
+                                icon: track != null && player.isFavorite(track) 
+                                    ? Icons.favorite_rounded 
+                                    : Icons.favorite_border_rounded,
+                                onTap: () {
+                                  if (track != null) {
+                                    player.toggleFavorite(track);
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              _buildActionSquare(
                                 icon: Icons.lyrics_rounded,
                                 onTap: () {},
                               ),
@@ -208,7 +217,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                         ],
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
 
                       // 4. Wavy Music Slider
                       StreamBuilder<Duration>(
@@ -275,7 +284,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                         },
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
 
                       // 5. Playback Controls (Animated)
                       AnimatedPlaybackControls(
@@ -285,39 +294,12 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                         onNext: () => player.skipNext(),
                       ),
 
-                      const SizedBox(height: 24),
-
-                      // 6. Bottom Action Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildBottomToggle(
-                            icon: Icons.shuffle_rounded,
-                            isActive: _isShuffle,
-                            onTap: () => setState(() => _isShuffle = !_isShuffle),
-                          ),
-                          const SizedBox(width: 16),
-                          _buildBottomToggle(
-                            icon: Icons.repeat_rounded,
-                            isActive: _isRepeat,
-                            onTap: () => setState(() => _isRepeat = !_isRepeat),
-                          ),
-                          const SizedBox(width: 16),
-                          _buildBottomToggle(
-                            icon: _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                            isActive: _isFavorite,
-                            onTap: () => setState(() => _isFavorite = !_isFavorite),
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 40),
+                      const Spacer(),
                     ],
                   ),
                 ),
               ),
             ),
-          ),
         );
       },
     );
@@ -348,26 +330,6 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
           borderRadius: BorderRadius.circular(14),
         ),
         child: Icon(icon, color: AppColors.white, size: 20),
-      ),
-    );
-  }
-
-  Widget _buildBottomToggle({required IconData icon, required bool isActive, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.pillPaleOrange : AppColors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Icon(
-          icon,
-          color: isActive ? AppColors.playerBackground : AppColors.white.withOpacity(0.8),
-          size: 24,
-        ),
       ),
     );
   }

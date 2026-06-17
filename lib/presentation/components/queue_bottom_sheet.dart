@@ -74,15 +74,6 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.pillPaleOrange.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Icon(Icons.all_inclusive_rounded, color: AppColors.pillPaleOrange, size: 20),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
                               color: AppColors.white.withOpacity(0.1),
@@ -116,7 +107,6 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                       
                       return Theme(
                         data: Theme.of(context).copyWith(
-                          canvasColor: Colors.transparent, // Prevents white background when dragging
                         ),
                         child: RawScrollbar(
                           thumbColor: AppColors.pillPaleOrange,
@@ -124,7 +114,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                           radius: const Radius.circular(3),
                           interactive: true,
                           child: ReorderableListView.builder(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 100), // Bottom padding for floating controls
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24), // Bottom padding
                             itemCount: queue.length,
                             onReorder: (oldIndex, newIndex) {
                               if (newIndex > oldIndex) newIndex -= 1;
@@ -175,11 +165,15 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                             ? CachedNetworkImage(
                                                 imageUrl: track.albumArt,
                                                 fit: BoxFit.cover,
+                                                fadeInDuration: Duration.zero,
+                                                fadeOutDuration: Duration.zero,
                                                 errorWidget: (context, url, error) => const Icon(Icons.music_note, color: Colors.white24),
                                               )
                                             : QueryArtworkWidget(
                                                 id: track.albumId ?? 0,
                                                 type: ArtworkType.ALBUM,
+                                                artworkBorder: BorderRadius.zero,
+                                                keepOldArtwork: true,
                                                 nullArtworkWidget: const Icon(Icons.music_note, color: Colors.white24),
                                               ),
                                       ),
@@ -230,49 +224,9 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
               ],
             ),
             
-            // 4. Floating Bottom Controls
-            Positioned(
-              bottom: 24,
-              left: 24,
-              right: 24,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.white.withOpacity(0.1), // Slightly transparent dark brown
-                  borderRadius: BorderRadius.circular(32),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildFloatingIcon(Icons.shuffle_rounded, AppColors.pillPaleOrange, AppColors.playerBackground),
-                    _buildFloatingIcon(Icons.repeat_one_rounded, AppColors.pillPaleOrange, AppColors.playerBackground),
-                    _buildFloatingIcon(Icons.timer_rounded, Colors.transparent, AppColors.white),
-                    _buildFloatingIcon(Icons.more_horiz_rounded, AppColors.libraryTextGreen.withOpacity(0.4), AppColors.white),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildFloatingIcon(IconData icon, Color bgColor, Color iconColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-      decoration: BoxDecoration(
-        color: bgColor == Colors.transparent ? AppColors.white.withOpacity(0.05) : bgColor,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Icon(icon, color: iconColor, size: 24),
     );
   }
 }

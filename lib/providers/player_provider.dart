@@ -18,8 +18,24 @@ class PlayerProvider extends ChangeNotifier {
   Duration duration = Duration.zero;
   bool isLoading = false;
 
+  List<TrackModel> favoriteTracks = [];
+
   Stream<Duration> get positionStream => _player.positionStream;
   Stream<Duration?> get durationStream => _player.durationStream;
+
+  void toggleFavorite(TrackModel track) {
+    final index = favoriteTracks.indexWhere((t) => t.id == track.id);
+    if (index >= 0) {
+      favoriteTracks.removeAt(index);
+    } else {
+      favoriteTracks.insert(0, track.copyWith(isFavorite: true));
+    }
+    notifyListeners();
+  }
+
+  bool isFavorite(TrackModel track) {
+    return favoriteTracks.any((t) => t.id == track.id);
+  }
 
   PlayerProvider() {
     _player.positionStream.listen((pos) {
@@ -43,14 +59,20 @@ class PlayerProvider extends ChangeNotifier {
       }
     });
     _player.playerStateStream.listen((state) {
-      isPlaying = state.playing;
+      bool shouldNotify = false;
+      if (isPlaying != state.playing) {
+        isPlaying = state.playing;
+        shouldNotify = true;
+      }
+      
       if (state.processingState == ProcessingState.completed) {
         // Automatically play next track if we're using dynamic resolution and track finishes
         if (_currentResolver != null) {
           skipNext();
         }
       }
-      notifyListeners();
+      
+      if (shouldNotify) notifyListeners();
     });
   }
 

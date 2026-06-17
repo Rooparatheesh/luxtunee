@@ -26,12 +26,12 @@ class _SplashScreenState extends State<SplashScreen>
 
     _bgCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 200),
     );
 
     _logoCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 100),
     );
 
     _bgScale = Tween<double>(
@@ -50,18 +50,16 @@ class _SplashScreenState extends State<SplashScreen>
     ).animate(CurvedAnimation(parent: _logoCtrl, curve: Curves.easeIn));
 
     _bgCtrl.forward();
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _logoCtrl.forward();
-    });
+    _logoCtrl.forward();
 
-    Future.delayed(const Duration(milliseconds: 2500), () {
+    Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (_, __, ___) => const OnboardingScreen(),
             transitionsBuilder: (_, anim, __, child) =>
                 FadeTransition(opacity: anim, child: child),
-            transitionDuration: const Duration(milliseconds: 600),
+            transitionDuration: const Duration(milliseconds: 200),
           ),
         );
       }

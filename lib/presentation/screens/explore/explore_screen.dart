@@ -65,51 +65,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             
             const SizedBox(height: 16),
 
-            // Source Selector
-            SizedBox(
-              height: 32,
-              child: Consumer<ExploreProvider>(
-                builder: (context, explore, child) {
-                  final sources = ['Deezer', 'YouTube', 'Navidrome', 'Jellyfin', 'NetEase'];
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: sources.length,
-                    itemBuilder: (context, index) {
-                      final source = sources[index];
-                      final isSelected = explore.currentSource == source;
-                      return GestureDetector(
-                        onTap: () {
-                          _searchController.clear();
-                          explore.setSource(source);
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.playerOrange : Colors.transparent,
-                            border: Border.all(
-                              color: isSelected ? AppColors.playerOrange : AppColors.textMuted,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            source,
-                            style: AppTypography.label(
-                              color: isSelected ? AppColors.white : AppColors.textMuted,
-                              weight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }
-              ),
-            ),
-            
-            const SizedBox(height: 16),
+
             
             // Search Bar
             Padding(

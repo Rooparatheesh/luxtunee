@@ -58,7 +58,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 style: AppTypography.display(
                   size: 28,
                   weight: FontWeight.w700,
-                  color: AppColors.libraryTextGreen,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -138,7 +138,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           child: Text(
                             category['name']!,
                             style: AppTypography.label(
-                              color: isSelected ? Theme.of(context).colorScheme.onSurface : AppColors.textLight,
+                              color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                               weight: isSelected ? FontWeight.w600 : FontWeight.w500,
                             ),
                           ),
@@ -157,8 +157,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
               child: Consumer<ExploreProvider>(
                 builder: (context, explore, child) {
                   if (explore.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppColors.libraryTextGreen),
+                    return Center(
+                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
                     );
                   }
                   
@@ -231,8 +231,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                       fit: BoxFit.cover,
                                       fadeInDuration: Duration.zero,
                                       fadeOutDuration: Duration.zero,
-                                      placeholder: (context, url) => const Center(
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.libraryTextGreen),
+                                      placeholder: (context, url) => Center(
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.primary),
                                       ),
                                       errorWidget: (context, url, error) => const Icon(Icons.music_note_rounded, color: AppColors.textMuted),
                                     ),
@@ -249,7 +249,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                           style: AppTypography.body(
                                             size: 15,
                                             weight: FontWeight.w600,
-                                            color: isPlaying ? AppColors.libraryTextGreen : Theme.of(context).colorScheme.onSurface,
+                                            color: isPlaying ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -271,7 +271,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                   // Play Icon
                                   Icon(
                                     isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded, 
-                                    color: isPlaying ? AppColors.libraryTextGreen : AppColors.textMuted,
+                                    color: isPlaying ? Theme.of(context).colorScheme.primary : AppColors.textMuted,
                                     size: 32,
                                   ),
                                 ],

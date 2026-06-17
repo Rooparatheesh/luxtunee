@@ -48,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
                   onChanged: (value) {
                     themeProvider.toggleTheme(value);
                   },
-                  activeColor: AppColors.libraryTextGreen,
+                  activeColor: Theme.of(context).colorScheme.primary,
                   contentPadding: EdgeInsets.zero,
                 ),
               ),

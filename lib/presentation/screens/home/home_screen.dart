@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: AppTypography.display(
                         size: 28,
                         weight: FontWeight.w700,
-                        color: AppColors.libraryTextGreen,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   Row(
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: AppTypography.label(
                           size: 12,
                           weight: FontWeight.w600,
-                          color: isSelected ? Theme.of(context).colorScheme.onSurface : AppColors.textLight,
+                          color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                         ),
                       ),
                     ),
@@ -136,8 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Consumer<PlayerProvider>(
                 builder: (context, player, child) {
                   if (player.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppColors.libraryTextGreen),
+                    return Center(
+                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
                     );
                   }
                   
@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       style: AppTypography.body(
                                         size: 15,
                                         weight: FontWeight.w600,
-                                        color: isPlaying ? AppColors.libraryTextGreen : Theme.of(context).colorScheme.onSurface,
+                                        color: isPlaying ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,

@@ -62,13 +62,13 @@ class _MainScaffoldState extends State<MainScaffold> {
             onTap: (index) => setState(() => _currentIndex = index),
             backgroundColor: Theme.of(context).cardColor,
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: AppColors.libraryTextGreen,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
             unselectedItemColor: AppColors.textMuted,
             showSelectedLabels: true,
             showUnselectedLabels: true,
             selectedLabelStyle: AppTypography.label(
               size: 10,
-              color: AppColors.libraryTextGreen,
+              color: Theme.of(context).colorScheme.primary,
               weight: FontWeight.w700,
             ),
             unselectedLabelStyle: AppTypography.label(

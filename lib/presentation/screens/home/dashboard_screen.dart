@@ -68,9 +68,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Consumer<ExploreProvider>(
                         builder: (context, explore, _) {
                           if (explore.isLoading) {
-                            return const SizedBox(
+                            return SizedBox(
                               height: 160, 
-                              child: Center(child: CircularProgressIndicator(color: AppColors.libraryTextGreen))
+                              child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
                             );
                           }
                           if (explore.trendingTracks.isEmpty) {
@@ -140,9 +140,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Consumer<PlayerProvider>(
                         builder: (context, player, _) {
                           if (player.isLoading) {
-                            return const SizedBox(
+                            return SizedBox(
                               height: 160, 
-                              child: Center(child: CircularProgressIndicator(color: AppColors.libraryTextGreen))
+                              child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
                             );
                           }
                           if (player.tracks.isEmpty) {

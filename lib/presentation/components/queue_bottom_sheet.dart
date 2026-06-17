@@ -17,7 +17,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.playerBackground, // Very dark brown/black
+        color: Theme.of(context).scaffoldBackgroundColor, // Very dark brown/black
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: SafeArea(
@@ -33,7 +33,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.white.withOpacity(0.2),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -56,7 +56,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                 style: AppTypography.display(
                                   size: 32,
                                   weight: FontWeight.w800,
-                                  color: AppColors.white,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -64,7 +64,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                 '${player.queue.length} tracks lined up.',
                                 style: AppTypography.body(
                                   size: 14,
-                                  color: AppColors.white.withOpacity(0.6),
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                 ),
                               ),
                             ],
@@ -76,16 +76,16 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
-                              color: AppColors.white.withOpacity(0.1),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.queue_music_rounded, color: AppColors.white, size: 18),
+                                Icon(Icons.queue_music_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Quick Picks',
-                                  style: AppTypography.label(color: AppColors.white),
+                                  style: AppTypography.label(color: Theme.of(context).colorScheme.onSurface),
                                 ),
                               ],
                             ),
@@ -137,7 +137,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                   margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   decoration: BoxDecoration(
-                                    color: isPlaying ? AppColors.playerOrange.withOpacity(0.15) : AppColors.white.withOpacity(0.05),
+                                    color: isPlaying ? AppColors.playerOrange.withOpacity(0.15) : Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                   child: Row(
@@ -147,7 +147,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                           index: index,
                                           child: Padding(
                                             padding: const EdgeInsets.only(right: 16),
-                                            child: Icon(Icons.drag_indicator_rounded, color: AppColors.white.withOpacity(0.4), size: 20),
+                                            child: Icon(Icons.drag_indicator_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 20),
                                           ),
                                         ),
                                       ],
@@ -157,7 +157,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                         width: 48,
                                         height: 48,
                                         decoration: BoxDecoration(
-                                          color: AppColors.white.withOpacity(0.1),
+                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                         clipBehavior: Clip.antiAlias,
@@ -167,14 +167,14 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                                 fit: BoxFit.cover,
                                                 fadeInDuration: Duration.zero,
                                                 fadeOutDuration: Duration.zero,
-                                                errorWidget: (context, url, error) => const Icon(Icons.music_note, color: Colors.white24),
+                                                errorWidget: (context, url, error) => Icon(Icons.music_note, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24)),
                                               )
                                             : QueryArtworkWidget(
                                                 id: track.albumId ?? 0,
                                                 type: ArtworkType.ALBUM,
                                                 artworkBorder: BorderRadius.zero,
                                                 keepOldArtwork: true,
-                                                nullArtworkWidget: const Icon(Icons.music_note, color: Colors.white24),
+                                                nullArtworkWidget: Icon(Icons.music_note, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24)),
                                               ),
                                       ),
                                       const SizedBox(width: 16),
@@ -189,7 +189,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                               style: AppTypography.body(
                                                 size: 16,
                                                 weight: FontWeight.w600,
-                                                color: isPlaying ? AppColors.pillPaleOrange : AppColors.white,
+                                                color: isPlaying ? AppColors.pillPaleOrange : Theme.of(context).colorScheme.onSurface,
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -199,7 +199,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                               track.artist,
                                               style: AppTypography.label(
                                                 size: 13,
-                                                color: AppColors.white.withOpacity(0.6),
+                                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -209,7 +209,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                       ),
                                       
                                       // Overflow Menu
-                                      Icon(Icons.more_vert_rounded, color: AppColors.white.withOpacity(0.6)),
+                                      Icon(Icons.more_vert_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                                     ],
                                   ),
                                 ),

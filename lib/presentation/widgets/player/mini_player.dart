@@ -36,7 +36,7 @@ class MiniPlayer extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.playerMiniBg,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
                 BoxShadow(
@@ -63,12 +63,12 @@ class MiniPlayer extends StatelessWidget {
                           fadeInDuration: Duration.zero,
                           fadeOutDuration: Duration.zero,
                           placeholder: (context, url) => Container(
-                            color: AppColors.libraryBackground,
-                            child: const Icon(Icons.music_note_rounded, color: Colors.white54),
+                            color: Theme.of(context).colorScheme.surface,
+                            child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                           ),
                           errorWidget: (context, url, error) => Container(
-                            color: AppColors.libraryBackground,
-                            child: const Icon(Icons.music_note_rounded, color: Colors.white54),
+                            color: Theme.of(context).colorScheme.surface,
+                            child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                           ),
                         )
                       : QueryArtworkWidget(
@@ -76,10 +76,10 @@ class MiniPlayer extends StatelessWidget {
                           type: ArtworkType.ALBUM,
                           keepOldArtwork: true,
                           nullArtworkWidget: Container(
-                            color: AppColors.libraryBackground,
-                            child: const Icon(
+                            color: Theme.of(context).colorScheme.surface,
+                            child: Icon(
                               Icons.music_note_rounded,
-                              color: Colors.white54,
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54),
                             ),
                           ),
                         ),
@@ -97,7 +97,7 @@ class MiniPlayer extends StatelessWidget {
                         style: AppTypography.body(
                           size: 14,
                           weight: FontWeight.w600,
-                          color: AppColors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -106,7 +106,7 @@ class MiniPlayer extends StatelessWidget {
                         track.artist,
                         style: AppTypography.label(
                           size: 11,
-                          color: AppColors.white.withOpacity(0.7),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -126,7 +126,7 @@ class MiniPlayer extends StatelessWidget {
                         color: Colors.transparent, // Ensure gesture area
                         child: Icon(
                           player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                          color: AppColors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                           size: 32,
                         ),
                       ),
@@ -137,7 +137,7 @@ class MiniPlayer extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         color: Colors.transparent, // Ensure gesture area
-                        child: const Icon(Icons.skip_next_rounded, color: AppColors.white, size: 32),
+                        child: Icon(Icons.skip_next_rounded, color: Theme.of(context).colorScheme.onSurface, size: 32),
                       ),
                     ),
                   ],

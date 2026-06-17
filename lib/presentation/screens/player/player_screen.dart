@@ -50,7 +50,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
         final track = player.currentTrack;
 
         return Scaffold(
-          backgroundColor: AppColors.playerBackground,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: FadeTransition(
               opacity: _enterCtrl,
@@ -73,7 +73,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                             style: AppTypography.display(
                               size: 16,
                               weight: FontWeight.w700,
-                              color: AppColors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           Row(
@@ -109,7 +109,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                         width: double.infinity,
                         height: MediaQuery.of(context).size.width - 48, // perfect square
                         decoration: BoxDecoration(
-                          color: AppColors.white.withOpacity(0.05),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(24),
                         ),
                         clipBehavior: Clip.antiAlias,
@@ -118,11 +118,11 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                 ? CachedNetworkImage(
                                     imageUrl: track.albumArt,
                                     fit: BoxFit.cover,
-                                    placeholder: (context, url) => const Center(
-                                      child: Icon(Icons.music_note_rounded, color: Colors.white24, size: 80),
+                                    placeholder: (context, url) => Center(
+                                      child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24), size: 80),
                                     ),
-                                    errorWidget: (context, url, error) => const Center(
-                                      child: Icon(Icons.music_note_rounded, color: Colors.white24, size: 80),
+                                    errorWidget: (context, url, error) => Center(
+                                      child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24), size: 80),
                                     ),
                                   )
                                 : QueryArtworkWidget(
@@ -134,12 +134,12 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                     artworkWidth: double.infinity,
                                     artworkHeight: double.infinity,
                                     size: 1000,
-                                    nullArtworkWidget: const Center(
-                                      child: Icon(Icons.music_note_rounded, color: Colors.white24, size: 80),
+                                    nullArtworkWidget: Center(
+                                      child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24), size: 80),
                                     ),
                                   ))
-                            : const Center(
-                                child: Icon(Icons.music_note_rounded, color: Colors.white24, size: 80),
+                            : Center(
+                                child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24), size: 80),
                               ),
                       ),
 
@@ -159,7 +159,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                   style: AppTypography.display(
                                     size: 28,
                                     weight: FontWeight.w800,
-                                    color: AppColors.white,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -171,7 +171,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                     text: track?.artist ?? 'Unknown Artist',
                                     style: AppTypography.body(
                                       size: 16,
-                                      color: AppColors.white.withOpacity(0.7),
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                       weight: FontWeight.w500,
                                     ),
                                     scrollAxis: Axis.horizontal,
@@ -235,7 +235,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                 value: progress.clamp(0.0, 1.0),
                                 isPlaying: player.isPlaying,
                                 activeColor: AppColors.pillPaleOrange,
-                                inactiveColor: AppColors.white.withOpacity(0.2),
+                                inactiveColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
                                 onChanged: (v) {
                                   player.seek(
                                     Duration(seconds: (v * duration.inSeconds).round()),
@@ -250,7 +250,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                     _fmt(position),
                                     style: AppTypography.label(
                                       size: 12,
-                                      color: AppColors.white,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       weight: FontWeight.w600,
                                     ),
                                   ),
@@ -258,14 +258,14 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: AppColors.white.withOpacity(0.1),
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       '44.1 kHz • 720 kbps • FLAC',
                                       style: AppTypography.label(
                                         size: 10,
-                                        color: AppColors.white.withOpacity(0.8),
+                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                       ),
                                     ),
                                   ),
@@ -273,7 +273,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                     _fmt(duration),
                                     style: AppTypography.label(
                                       size: 12,
-                                      color: AppColors.white,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       weight: FontWeight.w600,
                                     ),
                                   ),
@@ -311,10 +311,10 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppColors.white.withOpacity(0.1),
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, color: AppColors.white, size: 22),
+        child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 22),
       ),
     );
   }
@@ -326,10 +326,10 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.white.withOpacity(0.1),
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Icon(icon, color: AppColors.white, size: 20),
+        child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 20),
       ),
     );
   }

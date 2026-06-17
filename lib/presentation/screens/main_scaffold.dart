@@ -29,7 +29,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.libraryBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Main content
@@ -45,8 +45,8 @@ class _MainScaffoldState extends State<MainScaffold> {
         ],
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.bottomNavBg,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
@@ -60,7 +60,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           child: BottomNavigationBar(
             currentIndex: _currentIndex,
             onTap: (index) => setState(() => _currentIndex = index),
-            backgroundColor: AppColors.bottomNavBg,
+            backgroundColor: Theme.of(context).cardColor,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: AppColors.libraryTextGreen,
             unselectedItemColor: AppColors.textMuted,

@@ -43,7 +43,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.libraryBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +72,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.librarySurface,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -83,7 +83,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     Expanded(
                       child: TextField(
                         controller: _searchController,
-                        style: AppTypography.body(color: AppColors.white),
+                        style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface),
                         decoration: InputDecoration(
                           hintText: 'Search for any song or language...',
                           hintStyle: AppTypography.body(color: AppColors.textMuted),
@@ -138,7 +138,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           child: Text(
                             category['name']!,
                             style: AppTypography.label(
-                              color: isSelected ? AppColors.white : AppColors.textLight,
+                              color: isSelected ? Theme.of(context).colorScheme.onSurface : AppColors.textLight,
                               weight: isSelected ? FontWeight.w600 : FontWeight.w500,
                             ),
                           ),
@@ -171,7 +171,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           const SizedBox(height: 16),
                           Text(
                             explore.error!,
-                            style: AppTypography.body(color: AppColors.textMuted),
+                            style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
@@ -222,8 +222,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                     width: 56,
                                     height: 56,
                                     decoration: BoxDecoration(
-                                      color: AppColors.librarySurface,
-                                      borderRadius: BorderRadius.circular(8),
+                                      color: Theme.of(context).colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     clipBehavior: Clip.antiAlias,
                                     child: CachedNetworkImage(
@@ -249,7 +249,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                           style: AppTypography.body(
                                             size: 15,
                                             weight: FontWeight.w600,
-                                            color: isPlaying ? AppColors.libraryTextGreen : AppColors.white,
+                                            color: isPlaying ? AppColors.libraryTextGreen : Theme.of(context).colorScheme.onSurface,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,

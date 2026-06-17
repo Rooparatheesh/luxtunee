@@ -33,7 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.libraryBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -46,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: AppTypography.display(
                   size: 28,
                   weight: FontWeight.w700,
-                  color: AppColors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
@@ -74,7 +74,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             );
                           }
                           if (explore.trendingTracks.isEmpty) {
-                            return const SizedBox(height: 160, child: Center(child: Text('No online tracks', style: TextStyle(color: Colors.white))));
+                            return SizedBox(height: 160, child: Center(child: Text('No online tracks', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))));
                           }
                           return SizedBox(
                             height: 160,
@@ -102,7 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           height: 120,
                                           width: 120,
                                           decoration: BoxDecoration(
-                                            color: AppColors.librarySurface,
+                                            color: Theme.of(context).cardColor,
                                             borderRadius: BorderRadius.circular(16),
                                             image: track.albumArt.isNotEmpty
                                                 ? DecorationImage(
@@ -118,7 +118,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         const SizedBox(height: 8),
                                         Text(
                                           track.title,
-                                          style: AppTypography.body(color: AppColors.white, weight: FontWeight.w600),
+                                          style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -146,7 +146,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             );
                           }
                           if (player.tracks.isEmpty) {
-                            return const SizedBox(height: 160, child: Center(child: Text('No offline tracks found', style: TextStyle(color: Colors.white))));
+                            return SizedBox(height: 160, child: Center(child: Text('No offline tracks found', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))));
                           }
                           return SizedBox(
                             height: 160,
@@ -171,7 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           height: 120,
                                           width: 120,
                                           decoration: BoxDecoration(
-                                            color: AppColors.librarySurface,
+                                            color: Theme.of(context).cardColor,
                                             borderRadius: BorderRadius.circular(16),
                                           ),
                                           child: ClipRRect(
@@ -191,7 +191,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         const SizedBox(height: 8),
                                         Text(
                                           track.title,
-                                          style: AppTypography.body(color: AppColors.white, weight: FontWeight.w600),
+                                          style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -213,10 +213,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Consumer<PlayerProvider>(
                         builder: (context, player, _) {
                           if (player.favoriteTracks.isEmpty) {
-                            return const SizedBox(
+                            return SizedBox(
                               height: 160, 
                               child: Center(
-                                child: Text('No favorite tracks yet', style: TextStyle(color: Colors.white70))
+                                child: Text('No favorite tracks yet', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)))
                               )
                             );
                           }
@@ -271,7 +271,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         const SizedBox(height: 8),
                                         Text(
                                           track.title,
-                                          style: AppTypography.body(color: AppColors.white, weight: FontWeight.w600),
+                                          style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -302,7 +302,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       style: AppTypography.display(
         size: 20,
         weight: FontWeight.w600,
-        color: AppColors.white,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }

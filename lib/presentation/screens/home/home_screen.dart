@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.libraryBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: TextField(
                         controller: _searchController,
                         autofocus: true,
-                        style: AppTypography.body(color: AppColors.white),
+                        style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface),
                         decoration: InputDecoration(
                           hintText: 'Search songs or artists...',
                           hintStyle: AppTypography.body(color: AppColors.textMuted),
@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(_isSearching ? Icons.close_rounded : Icons.search_rounded, color: AppColors.white),
+                        icon: Icon(_isSearching ? Icons.close_rounded : Icons.search_rounded, color: Theme.of(context).colorScheme.onSurface),
                         onPressed: () {
                           setState(() {
                             if (_isSearching) {
@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       if (!_isSearching)
                         IconButton(
-                          icon: const Icon(Icons.more_vert_rounded, color: AppColors.white),
+                          icon: Icon(Icons.more_vert_rounded, color: Theme.of(context).colorScheme.onSurface),
                           onPressed: () {},
                         ),
                     ],
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: AppTypography.label(
                           size: 12,
                           weight: FontWeight.w600,
-                          color: isSelected ? AppColors.white : AppColors.textLight,
+                          color: isSelected ? Theme.of(context).colorScheme.onSurface : AppColors.textLight,
                         ),
                       ),
                     ),
@@ -182,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 56,
                                 height: 56,
                                 decoration: BoxDecoration(
-                                  color: AppColors.librarySurface,
+                                  color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 clipBehavior: Clip.antiAlias,
@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       style: AppTypography.body(
                                         size: 15,
                                         weight: FontWeight.w600,
-                                        color: isPlaying ? AppColors.libraryTextGreen : AppColors.white,
+                                        color: isPlaying ? AppColors.libraryTextGreen : Theme.of(context).colorScheme.onSurface,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -230,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               // Options / More
                               PopupMenuButton<String>(
                                 icon: const Icon(Icons.more_vert_rounded, color: AppColors.textMuted),
-                                color: AppColors.librarySurface,
+                                color: Theme.of(context).cardColor,
                                 onSelected: (value) {
                                   if (value == 'remove') {
                                     player.removeTrack(track);

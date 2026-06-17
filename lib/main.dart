@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:luxtunee/theme/app_theme.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
-import 'presentation/screens/splash/splash_screen.dart';
+import 'presentation/screens/onboarding/onboarding_screen.dart';
 import 'providers/player_provider.dart';
 import 'providers/explore_provider.dart';
 import 'providers/theme_provider.dart';
@@ -60,7 +60,7 @@ class LuxTuneApp extends StatelessWidget {
       themeMode: themeProvider.themeMode,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      home: const SplashScreen(),
+      home: const OnboardingScreen(),
     );
   }
 }

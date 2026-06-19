@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:luxtunee/theme/app_theme.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
@@ -10,9 +11,16 @@ import 'presentation/screens/onboarding/onboarding_screen.dart';
 import 'providers/player_provider.dart';
 import 'providers/explore_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/party_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase init error: $e');
+  }
 
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.example.luxtunee.channel.audio',
@@ -41,6 +49,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => PlayerProvider()),
         ChangeNotifierProvider(create: (_) => ExploreProvider()),
+        ChangeNotifierProvider(create: (_) => PartyProvider()..initialize()),
       ],
       child: const LuxTuneApp(),
     ),

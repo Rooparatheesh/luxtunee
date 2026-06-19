@@ -1,16 +1,28 @@
-# luxtunee
+# LuxTune 🎵
 
-A new Flutter project.
+An elegant and modern music application built with Flutter, designed to elevate your everyday moments with beautiful aesthetics, seamless animations, and both Light & Dark modes!
 
-## Getting Started
+## 📥 Download the App
 
-This project is a starting point for a Flutter application.
+You can download the latest Android APK directly from our releases page:
 
-A few resources to get you started if this is your first Flutter project:
+[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/Rooparatheesh/luxtunee/releases/latest)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Getting Started for Developers
+
+If you want to run this project locally, make sure you have Flutter installed.
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Rooparatheesh/luxtunee.git
+```
+2. Install dependencies:
+```bash
+flutter pub get
+```
+3. Run the app:
+```bash
+flutter run
+```

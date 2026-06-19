@@ -144,11 +144,14 @@ class PartyProvider extends ChangeNotifier {
     _roomPlaybackSubscription?.cancel();
     if (_currentRoomCode == null) return;
 
-    _roomPlaybackSubscription = _db.child('rooms/$_currentRoomCode/playback_state').onValue.listen((event) {
+    _roomPlaybackSubscription = _db.child('rooms/$_currentRoomCode').onValue.listen((event) {
       if (event.snapshot.value != null) {
-        final state = Map<String, dynamic>.from(event.snapshot.value as Map);
-        if (_playerProvider != null && state['track_url'] != null) {
-           _syncRemotePlayer(state);
+        final roomData = Map<String, dynamic>.from(event.snapshot.value as Map);
+        if (roomData.containsKey('playback_state')) {
+          final state = Map<String, dynamic>.from(roomData['playback_state'] as Map);
+          if (_playerProvider != null && state['track_url'] != null) {
+             _syncRemotePlayer(state);
+          }
         }
       } else {
         // Room was deleted
@@ -175,8 +178,10 @@ class PartyProvider extends ChangeNotifier {
       
       final now = DateTime.now().millisecondsSinceEpoch;
       final delayMs = now - (updatedAt as int);
-      // If delay is small, compensate. Otherwise, ignore network huge spikes.
-      final adjustedPosition = positionMs + (delayMs < 5000 && isPlaying ? delayMs : 0);
+      // Prevent mismatched device clocks from causing negative seeks.
+      // If delay is realistic (0 to 5 seconds), compensate. Otherwise, ignore.
+      final validDelay = (delayMs >= 0 && delayMs < 5000) ? delayMs : 0;
+      final adjustedPosition = positionMs + (isPlaying ? validDelay : 0);
       
       // 1. Handle Track Switch
       if (_playerProvider!.currentTrack?.id != trackId) {
@@ -221,7 +226,12 @@ class PartyProvider extends ChangeNotifier {
         await _playerProvider!.togglePlayPause();
       }
     } finally {
-      _isSyncing = false;
+      // Keep the syncing flag active for a short period after applying changes
+      // to absorb any delayed asynchronous stream events from the native audio player.
+      // This prevents the echo loop (ping-ponging state).
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        _isSyncing = false;
+      });
     }
   }
 

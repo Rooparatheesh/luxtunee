@@ -55,9 +55,9 @@ class PartyProvider extends ChangeNotifier {
       else if (currentTrackId != _lastTrackId) {
         shouldSync = true;
       }
-      // 3. User seeked (jump of > 2000ms compared to where it should be)
+      // 3. User seeked
       // Since position naturally increases, a large unexpected jump means seek.
-      else if ((currentPosMs - _lastPosMs).abs() > 2500 && (now - _lastSyncTimeMs) > 1000) {
+      else if ((currentPosMs - _lastPosMs).abs() > 1000 && (now - _lastSyncTimeMs) > 500) {
         shouldSync = true;
       }
       // 4. Heartbeat (every 5 seconds)
@@ -176,12 +176,9 @@ class PartyProvider extends ChangeNotifier {
       final updatedAt = state['updated_at'];
       final trackSource = state['track_source'] ?? 'online';
       
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final delayMs = now - (updatedAt as int);
-      // Prevent mismatched device clocks from causing negative seeks.
-      // If delay is realistic (0 to 5 seconds), compensate. Otherwise, ignore.
-      final validDelay = (delayMs >= 0 && delayMs < 5000) ? delayMs : 0;
-      final adjustedPosition = positionMs + (isPlaying ? validDelay : 0);
+      // Ignore device clocks for latency because device clocks can be skewed.
+      // Instead, apply a small fixed offset (e.g. 300ms) to compensate for network delay.
+      final adjustedPosition = positionMs + (isPlaying ? 300 : 0);
       
       // 1. Handle Track Switch
       if (_playerProvider!.currentTrack?.id != trackId) {
@@ -213,9 +210,9 @@ class PartyProvider extends ChangeNotifier {
         }
       }
       
-      // 2. Handle Position Sync (Tolerate up to 2.5s drift to prevent stuttering)
+      // 2. Handle Position Sync (Tolerate up to 1000ms drift to prevent stuttering)
       final currentPosMs = _playerProvider!.position.inMilliseconds;
-      if ((currentPosMs - adjustedPosition).abs() > 2500) {
+      if ((currentPosMs - adjustedPosition).abs() > 1000) {
         await _playerProvider!.seek(Duration(milliseconds: adjustedPosition));
       }
       

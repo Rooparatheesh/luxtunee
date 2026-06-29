@@ -21,9 +21,9 @@ class YoutubeService {
         final duration = video.duration ?? Duration.zero;
         if (duration == Duration.zero) continue;
 
-        final albumArt = video.thumbnails.maxResUrl.isNotEmpty 
-            ? video.thumbnails.maxResUrl 
-            : video.thumbnails.highResUrl;
+        // Use highResUrl (hqdefault.jpg) as it is practically guaranteed to exist, 
+        // avoiding 404 errors that occur when maxresdefault.jpg is missing.
+        final albumArt = video.thumbnails.highResUrl;
 
         tracks.add(
           TrackModel(

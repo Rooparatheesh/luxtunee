@@ -108,12 +108,7 @@ class AppTheme {
     ),
     dividerColor: AppColors.textMuted.withValues(alpha: 0.2),
     iconTheme: const IconThemeData(color: AppColors.white),
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      },
-    ),
+
   );
 
   static ThemeData get light => ThemeData(
@@ -151,11 +146,6 @@ class AppTheme {
     ),
     dividerColor: AppColors.textMuted.withValues(alpha: 0.2),
     iconTheme: const IconThemeData(color: AppColors.black),
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      },
-    ),
+
   );
 }

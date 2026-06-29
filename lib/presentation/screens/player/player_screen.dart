@@ -9,8 +9,8 @@ import '../../../data/network/download_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../components/animated_playback_controls.dart';
 import '../../components/wavy_slider.dart';
-import '../../components/wavy_circular_progress.dart';
 import '../../components/queue_bottom_sheet.dart';
+import '../../components/add_to_playlist_sheet.dart';
 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
@@ -154,28 +154,19 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
-                          Row(
-                            children: [
-                              _buildTopIconButton(
-                                icon: Icons.cast_connected_rounded,
-                                onTap: () {},
-                              ),
-                              const SizedBox(width: 8),
-                              _buildTopIconButton(
-                                icon: Icons.queue_music_rounded,
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    builder: (context) => const FractionallySizedBox(
-                                      heightFactor: 0.9,
-                                      child: QueueBottomSheet(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
+                          _buildTopIconButton(
+                            icon: Icons.queue_music_rounded,
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) => const FractionallySizedBox(
+                                  heightFactor: 0.9,
+                                  child: QueueBottomSheet(),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -297,12 +288,11 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                           SizedBox(
                                             width: 48,
                                             height: 48,
-                                            child: WavyCircularProgressIndicator(
+                                            child: CircularProgressIndicator(
                                               value: _downloadProgress,
                                               strokeWidth: 2.5,
                                               backgroundColor: AppColors.white.withOpacity(0.1),
-                                              color: AppColors.libraryTextGreen,
-                                              wavyColor: AppColors.libraryTextGreen.withOpacity(0.6),
+                                              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.libraryTextGreen),
                                             ),
                                           ),
                                           Icon(
@@ -321,7 +311,19 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                               const SizedBox(width: 8),
                               _buildActionSquare(
                                 icon: Icons.more_vert_rounded,
-                                onTap: () {},
+                                onTap: () {
+                                  if (track != null) {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (context) => FractionallySizedBox(
+                                        heightFactor: 0.6,
+                                        child: AddToPlaylistSheet(track: track),
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
                             ],
                           ),

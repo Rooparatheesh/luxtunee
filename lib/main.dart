@@ -12,6 +12,7 @@ import 'providers/player_provider.dart';
 import 'providers/explore_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/party_provider.dart';
+import 'providers/playlist_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +51,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => PlayerProvider()),
         ChangeNotifierProvider(create: (_) => ExploreProvider()),
         ChangeNotifierProvider(create: (_) => PartyProvider()..initialize()),
+        ChangeNotifierProvider(create: (_) => PlaylistProvider()),
       ],
       child: const LuxTuneApp(),
     ),

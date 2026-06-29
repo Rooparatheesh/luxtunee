@@ -101,11 +101,12 @@ class AppTheme {
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.libraryBackground,
       elevation: 0,
+      scrolledUnderElevation: 0,
       centerTitle: true,
       titleTextStyle: AppTypography.heading(size: 16),
       iconTheme: const IconThemeData(color: AppColors.white),
     ),
-    dividerColor: AppColors.textMuted.withOpacity(0.2),
+    dividerColor: AppColors.textMuted.withValues(alpha: 0.2),
     iconTheme: const IconThemeData(color: AppColors.white),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
@@ -143,11 +144,12 @@ class AppTheme {
     appBarTheme: AppBarTheme(
       backgroundColor: const Color(0xFFF0F0F5),
       elevation: 0,
+      scrolledUnderElevation: 0,
       centerTitle: true,
       titleTextStyle: AppTypography.heading(size: 16, color: AppColors.black),
       iconTheme: const IconThemeData(color: AppColors.black),
     ),
-    dividerColor: AppColors.textMuted.withOpacity(0.2),
+    dividerColor: AppColors.textMuted.withValues(alpha: 0.2),
     iconTheme: const IconThemeData(color: AppColors.black),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {

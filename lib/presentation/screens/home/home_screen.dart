@@ -5,7 +5,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/player_provider.dart';
 import '../../../theme/app_theme.dart';
-
+import '../../components/add_to_playlist_sheet.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<String> _filters = ['SONGS', 'ALBUMS', 'ARTIST', 'PLAYLISTS'];
+  final List<String> _filters = ['SONGS', 'ALBUMS', 'ARTIST'];
   int _selectedFilter = 0;
   bool _isSearching = false;
   String _searchQuery = '';
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: AppTypography.label(
                           size: 12,
                           weight: FontWeight.w600,
-                          color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                          color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -234,9 +234,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onSelected: (value) {
                                   if (value == 'remove') {
                                     player.removeTrack(track);
+                                  } else if (value == 'add_playlist') {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (context) => FractionallySizedBox(
+                                        heightFactor: 0.6,
+                                        child: AddToPlaylistSheet(track: track),
+                                      ),
+                                    );
                                   }
                                 },
                                 itemBuilder: (BuildContext context) => [
+                                  PopupMenuItem(
+                                    value: 'add_playlist',
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.playlist_add_rounded, color: AppColors.textMuted, size: 20),
+                                        const SizedBox(width: 8),
+                                        Text('Add to Playlist', style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface)),
+                                      ],
+                                    ),
+                                  ),
                                   PopupMenuItem(
                                     value: 'remove',
                                     child: Row(
@@ -263,4 +283,5 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 }

@@ -11,6 +11,7 @@ import 'home/dashboard_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/player_provider.dart';
 import '../../providers/party_provider.dart';
+import 'playlists/playlists_screen.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -34,6 +35,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   final List<Widget> _pages = [
     const DashboardScreen(), // Home screen with both online and offline
     const ExploreScreen(), // Search/Explore
+    const PlaylistsScreen(), // Dedicated Playlists tab
     const SettingsScreen(),
     const HomeScreen(), // Using HomeScreen as the Library
   ];
@@ -75,7 +77,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
           ),
@@ -107,8 +109,9 @@ class _MainScaffoldState extends State<MainScaffold> {
             items: [
               _buildNavItem(Icons.home_rounded, 'Home', 0),
               _buildNavItem(Icons.explore_rounded, 'Explore', 1),
-              _buildNavItem(Icons.settings_rounded, 'Settings', 2),
-              _buildNavItem(Icons.library_music_rounded, 'Library', 3),
+              _buildNavItem(Icons.queue_music_rounded, 'Playlists', 2),
+              _buildNavItem(Icons.settings_rounded, 'Settings', 3),
+              _buildNavItem(Icons.library_music_rounded, 'Library', 4),
             ],
           ),
         ),

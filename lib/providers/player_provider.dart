@@ -111,7 +111,13 @@ class PlayerProvider extends ChangeNotifier {
   Future<void> playTrack(TrackModel track, {Future<String> Function(TrackModel)? urlResolver, List<TrackModel>? newQueue}) async {
     // Instantly update the UI so it feels snappy and doesn't lag
     currentTrack = track;
-    if (urlResolver != null) _currentResolver = urlResolver;
+    if (urlResolver != null) {
+      _currentResolver = urlResolver;
+    } else if (track.isLocal) {
+      // If we are playing a local track, clear the previous resolver 
+      // so YouTube background logic doesn't interfere.
+      _currentResolver = null;
+    }
     
     // Update the queue if a new one is provided, otherwise keep existing queue
     if (newQueue != null) {

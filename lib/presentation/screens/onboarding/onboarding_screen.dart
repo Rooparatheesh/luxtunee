@@ -100,7 +100,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   void _navigateToArtistSelect() {
-    Navigator.of(context).push(
+    Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => const MainScaffold(),
         transitionsBuilder: (_, anim, __, child) => SlideTransition(

@@ -45,16 +45,15 @@ class PlayerProvider extends ChangeNotifier {
       if (dur != null) duration = dur;
     });
     _player.currentIndexStream.listen((index) {
-      if (index != null && queue.isNotEmpty) {
+      if (index != null && queue.isNotEmpty && index < queue.length) {
         if (_currentResolver != null) {
-          // Dynamic single-track playlist. The index from just_audio is always 0.
-          // Do nothing, currentTrack is already correctly managed by playTrack and skipNext.
-        } else {
-          // Full ConcatenatingAudioSource (e.g. Local Library).
-          if (index < queue.length) {
-            currentTrack = queue[index];
-            notifyListeners();
+          // Only handle if this is a genuinely new track (not re-triggered by our own playTrack call)
+          if (queue[index].id != currentTrack?.id) {
+            _handleBackgroundSkip(index);
           }
+        } else {
+          currentTrack = queue[index];
+          notifyListeners();
         }
       }
     });
@@ -110,22 +109,26 @@ class PlayerProvider extends ChangeNotifier {
     final initialIndex = queue.indexWhere((t) => t.id == track.id);
     final targetIndex = initialIndex >= 0 ? initialIndex : 0;
 
-    // Resolve URL for the current track if a resolver is provided and the URL is empty
-    if (urlResolver != null && track.playbackSource.isEmpty) {
-      final resolvedUrl = await urlResolver(track);
+    // Auto-attach resolver for YouTube tracks if none provided
+    final effectiveResolver = urlResolver ?? _currentResolver;
+
+    // Resolve URL for the current track if a resolver is available and the URL is empty
+    if (effectiveResolver != null && track.playbackSource.isEmpty) {
+      final resolvedUrl = await effectiveResolver(track);
       // Update the track in our queue with the new URL
       queue[targetIndex] = track.copyWith(audioUrl: resolvedUrl);
       track = queue[targetIndex];
     }
     
-    // Build playlist for just_audio_background
+    // Build playlist with ALL queue items so background notification shows prev/next
     final children = queue.map((t) {
       final isRemote = !t.isLocal;
       final artUri = isRemote && t.albumArt.isNotEmpty 
           ? Uri.parse(t.albumArt) 
           : Uri.parse('content://media/external/audio/albumart/${t.albumId ?? 0}');
       
-      final url = t.playbackSource.isNotEmpty ? t.playbackSource : 'http://dummy.url/empty.mp3';
+      // Use a dummy URL for unresolved tracks — skipNext/skipPrev resolve real URLs before playing
+      final url = t.playbackSource.isNotEmpty ? t.playbackSource : 'https://example.com/placeholder.mp3';
 
       return AudioSource.uri(
         Uri.parse(url),
@@ -139,16 +142,9 @@ class PlayerProvider extends ChangeNotifier {
       );
     }).toList();
 
-    // If we rely on dynamic URL resolution (like YouTube), building a full ConcatenatingAudioSource 
-    // with dummy URLs causes just_audio to crash when pre-buffering the next track.
-    // As a workaround, we only provide the current track to the player.
-    if (urlResolver != null && queue[targetIndex].playbackSource.isNotEmpty) {
-      _playlist = ConcatenatingAudioSource(children: [children[targetIndex]]);
-      await _player.setAudioSource(_playlist!, initialIndex: 0);
-    } else {
-      _playlist = ConcatenatingAudioSource(children: children);
-      await _player.setAudioSource(_playlist!, initialIndex: targetIndex);
-    }
+    // Always build the full playlist so the notification shows prev/next buttons
+    _playlist = ConcatenatingAudioSource(children: children);
+    await _player.setAudioSource(_playlist!, initialIndex: targetIndex);
 
     await _player.play();
   }
@@ -160,14 +156,46 @@ class PlayerProvider extends ChangeNotifier {
   Future<void> seek(Duration position) async {
     await _player.seek(position);
   }
-
-  // We store the current resolver so we can reuse it when skipping tracks
   Future<String> Function(TrackModel)? _currentResolver;
+  bool _isHandlingBackgroundSkip = false;
+
+  /// Called when background notification triggers skip via currentIndexStream.
+  /// Resolves URL for the new track and plays it properly.
+  Future<void> _handleBackgroundSkip(int index) async {
+    if (_isHandlingBackgroundSkip) return; // Prevent re-entrant calls
+    _isHandlingBackgroundSkip = true;
+    
+    try {
+      final track = queue[index];
+      currentTrack = track;
+      notifyListeners();
+      
+      // Resolve URL if needed
+      if (_currentResolver != null && track.playbackSource.isEmpty) {
+        try {
+          final resolvedUrl = await _currentResolver!(track);
+          queue[index] = track.copyWith(audioUrl: resolvedUrl);
+        } catch (_) {}
+      }
+      
+      await playTrack(queue[index], urlResolver: _currentResolver);
+    } finally {
+      _isHandlingBackgroundSkip = false;
+    }
+  }
 
   Future<void> skipNext() async {
     if (queue.isEmpty) return;
     final currentIndex = queue.indexWhere((t) => t.id == currentTrack?.id);
     if (currentIndex >= 0 && currentIndex < queue.length - 1) {
+      final nextTrack = queue[currentIndex + 1];
+      // Resolve URL for the next track before playing
+      if (_currentResolver != null && nextTrack.playbackSource.isEmpty) {
+        try {
+          final resolvedUrl = await _currentResolver!(nextTrack);
+          queue[currentIndex + 1] = nextTrack.copyWith(audioUrl: resolvedUrl);
+        } catch (_) {}
+      }
       await playTrack(queue[currentIndex + 1], urlResolver: _currentResolver);
     }
   }
@@ -176,6 +204,14 @@ class PlayerProvider extends ChangeNotifier {
     if (queue.isEmpty) return;
     final currentIndex = queue.indexWhere((t) => t.id == currentTrack?.id);
     if (currentIndex > 0) {
+      final prevTrack = queue[currentIndex - 1];
+      // Resolve URL for the previous track before playing
+      if (_currentResolver != null && prevTrack.playbackSource.isEmpty) {
+        try {
+          final resolvedUrl = await _currentResolver!(prevTrack);
+          queue[currentIndex - 1] = prevTrack.copyWith(audioUrl: resolvedUrl);
+        } catch (_) {}
+      }
       await playTrack(queue[currentIndex - 1], urlResolver: _currentResolver);
     }
   }

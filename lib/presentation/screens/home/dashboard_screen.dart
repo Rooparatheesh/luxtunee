@@ -210,8 +210,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       // Favorite Songs
                       _buildSectionTitle('Your Favorites'),
                       const SizedBox(height: 16),
-                      Consumer<PlayerProvider>(
-                        builder: (context, player, _) {
+                      Consumer2<PlayerProvider, ExploreProvider>(
+                        builder: (context, player, explore, _) {
                           if (player.favoriteTracks.isEmpty) {
                             return SizedBox(
                               height: 160, 
@@ -231,6 +231,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 return GestureDetector(
                                   onTap: () => player.playTrack(
                                     track,
+                                    urlResolver: track.source == 'youtube' ? explore.getAudioUrl : null,
                                     newQueue: player.favoriteTracks,
                                   ),
                                   child: Container(

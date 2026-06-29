@@ -4,9 +4,12 @@
     <!-- Android 12 and below -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <!-- Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <!-- Needed for downloading to public directories on older Android versions -->
 
     <!-- just_audio_background permissions -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>

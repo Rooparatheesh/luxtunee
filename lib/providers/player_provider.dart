@@ -88,6 +88,26 @@ class PlayerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> scanMedia(String path) async {
+    await _repo.scanMedia(path);
+  }
+
+  void addDownloadedTrack(TrackModel track, String path) {
+    // Add to local tracks list immediately so it shows up in UI
+    final localTrack = track.copyWith(
+      id: track.id, // Keep the same ID so we can match it later if needed
+      uri: path, // Treat as local file
+      source: 'local',
+      audioUrl: '', // No longer needs network URL
+    );
+    
+    // Avoid duplicates if we already have it
+    if (!tracks.any((t) => t.uri == localTrack.uri)) {
+      tracks.insert(0, localTrack);
+      notifyListeners();
+    }
+  }
+
   Future<void> playTrack(TrackModel track, {Future<String> Function(TrackModel)? urlResolver, List<TrackModel>? newQueue}) async {
     // Instantly update the UI so it feels snappy and doesn't lag
     currentTrack = track;

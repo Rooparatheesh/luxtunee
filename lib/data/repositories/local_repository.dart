@@ -9,6 +9,14 @@ class LocalRepository {
     return await _audioQuery.permissionsRequest();
   }
 
+  Future<void> scanMedia(String path) async {
+    try {
+      await _audioQuery.scanMedia(path);
+    } catch (e) {
+      // ignore
+    }
+  }
+
   Future<List<TrackModel>> fetchTracks() async {
     final songs = await _audioQuery.querySongs(
       sortType: SongSortType.TITLE,

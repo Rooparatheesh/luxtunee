@@ -4,9 +4,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:marquee/marquee.dart';
 import '../../../providers/player_provider.dart';
+import '../../../providers/explore_provider.dart';
+import '../../../data/network/download_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../components/animated_playback_controls.dart';
 import '../../components/wavy_slider.dart';
+import '../../components/wavy_circular_progress.dart';
 import '../../components/queue_bottom_sheet.dart';
 
 class PlayerScreen extends StatefulWidget {
@@ -21,6 +24,9 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
   bool _isFavorite = false;
   bool _isShuffle = false;
   bool _isRepeat = false;
+  bool _isDownloading = false;
+  double? _downloadProgress;
+  final DownloadService _downloadService = DownloadService();
 
   @override
   void initState() {
@@ -29,6 +35,78 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..forward();
+  }
+
+  Future<void> _handleDownload(BuildContext context, dynamic track) async {
+    if (track == null || _isDownloading) return;
+    
+    setState(() {
+      _isDownloading = true;
+      _downloadProgress = 0.0;
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Starting download for ${track.title}...')),
+    );
+
+    try {
+      // 1. Resolve URL if it's from YouTube
+      String url = track.audioUrl;
+      if (url.isEmpty && track.source == 'youtube') {
+        final explore = context.read<ExploreProvider>();
+        url = await explore.getAudioUrl(track);
+      }
+
+      if (url.isEmpty) {
+        throw Exception('Could not resolve audio URL');
+      }
+
+      // 2. Download and save with progress
+      final downloadedPath = await _downloadService.downloadTrack(
+        url, 
+        '${track.title} - ${track.artist}',
+        albumArtUrl: track.albumArt,
+        onProgress: (progress) {
+          if (mounted) {
+            setState(() {
+              _downloadProgress = progress;
+            });
+          }
+        },
+      );
+      
+      if (downloadedPath != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Download complete! Added to local music.')),
+          );
+          // Scan the newly downloaded file so it appears in the MediaStore
+          final playerProvider = context.read<PlayerProvider>();
+          
+          // Add it manually to the UI immediately
+          playerProvider.addDownloadedTrack(track, downloadedPath);
+          
+          // Then run background scan and refresh
+          await playerProvider.scanMedia(downloadedPath);
+          await playerProvider.loadLibrary();
+        }
+      } else {
+        throw Exception('Failed to save file.');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Download failed. Please try again.')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDownloading = false;
+          _downloadProgress = null;
+        });
+      }
+    }
   }
 
   @override
@@ -207,6 +285,39 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                 icon: Icons.lyrics_rounded,
                                 onTap: () {},
                               ),
+                              if (track != null && !track.isLocal) ...[
+                                const SizedBox(width: 8),
+                                _isDownloading 
+                                  ? SizedBox(
+                                      width: 48,
+                                      height: 48,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 48,
+                                            height: 48,
+                                            child: WavyCircularProgressIndicator(
+                                              value: _downloadProgress,
+                                              strokeWidth: 2.5,
+                                              backgroundColor: AppColors.white.withOpacity(0.1),
+                                              color: AppColors.libraryTextGreen,
+                                              wavyColor: AppColors.libraryTextGreen.withOpacity(0.6),
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.download_rounded, 
+                                            color: AppColors.libraryTextGreen.withOpacity(0.5),
+                                            size: 20,
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : _buildActionSquare(
+                                      icon: Icons.download_rounded,
+                                      onTap: () => _handleDownload(context, track),
+                                    ),
+                              ],
                               const SizedBox(width: 8),
                               _buildActionSquare(
                                 icon: Icons.more_vert_rounded,

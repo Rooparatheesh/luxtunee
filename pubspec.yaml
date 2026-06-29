@@ -31,6 +31,10 @@ dependencies:
   device_info_plus: ^12.4.0
   firebase_core: ^4.11.0
   firebase_database: ^12.4.3
+  path_provider: ^2.1.5
+  permission_handler: ^12.0.3
+  metadata_god: ^1.1.0
+  dart_tags: ^0.4.1
 
 dev_dependencies:
   flutter_test:

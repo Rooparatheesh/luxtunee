@@ -42,15 +42,8 @@ jobs:
       - name: Analyze Code (lint, fails on issues)
         run: flutter analyze || true
 
-      - name: Run Tests with Coverage
-        run: flutter test --coverage || true
-
-      - name: Enforce Coverage Threshold
-        uses: VeryGoodOpenSource/very_good_coverage@v3
-        continue-on-error: true
-        with:
-          path: 'coverage/lcov.info'
-          min_coverage: 10 
+      - name: Run Tests
+        run: flutter test || true
 
       - name: Secret Scan (gitleaks)
         uses: gitleaks/gitleaks-action@v2

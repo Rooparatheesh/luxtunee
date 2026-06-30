@@ -65,7 +65,8 @@ class _PlayerScreenState extends State<PlayerScreen>
       // 2. Download and save with progress
       final downloadedPath = await _downloadService.downloadTrack(
         url,
-        '${track.title} - ${track.artist}',
+        track.title,
+        track.artist,
         albumArtUrl: track.albumArt,
         onProgress: (progress) {
           if (mounted) {

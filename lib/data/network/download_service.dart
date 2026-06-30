@@ -2,16 +2,21 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:metadata_god/metadata_god.dart';
 
 class DownloadService {
+  bool _metadataInitialized = false;
+
   /// Downloads an audio file from a URL and saves it to the device's public Music folder.
   /// Returns the path to the downloaded file, or null if it failed.
   Future<String?> downloadTrack(
     String url,
-    String filename, {
+    String trackTitle,
+    String trackArtist, {
     String? albumArtUrl,
     Function(double)? onProgress,
   }) async {
+    final filename = '$trackTitle - $trackArtist';
     if (Platform.isAndroid) {
       var status = await Permission.storage.status;
       if (!status.isGranted) {
@@ -97,6 +102,39 @@ class DownloadService {
 
         await sink.close();
         client.close();
+
+        // 3. Inject Metadata (ID3 tags)
+        try {
+          if (!_metadataInitialized) {
+            MetadataGod.initialize();
+            _metadataInitialized = true;
+          }
+
+          Picture? albumArtPicture;
+          if (albumArtUrl != null && albumArtUrl.isNotEmpty) {
+            final coverFile = File('${songDirectory.path}/cover.jpg');
+            if (await coverFile.exists()) {
+              albumArtPicture = Picture(
+                data: await coverFile.readAsBytes(),
+                mimeType: 'image/jpeg',
+              );
+            }
+          }
+
+          await MetadataGod.writeMetadata(
+            file: audioPath,
+            metadata: Metadata(
+              title: trackTitle,
+              artist: trackArtist,
+              album: "LuxTune Downloads",
+              picture: albumArtPicture,
+            ),
+          );
+        } catch (e) {
+          // Ignore metadata errors so we still return the downloaded path
+          print("Failed to write metadata: $e");
+        }
+
         return audioPath;
       }
       client.close();

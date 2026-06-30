@@ -1,4 +1,9 @@
 name: Build Android APK
+
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches:
@@ -16,8 +21,6 @@ jobs:
   lint-and-scan:
     name: Lint & Security Scan
     runs-on: ubuntu-latest
-    env:
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     permissions:
       contents: read
       security-events: write 

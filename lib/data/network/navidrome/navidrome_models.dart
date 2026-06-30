@@ -66,7 +66,10 @@ class NavidromeSong {
     );
   }
 
-  TrackModel toTrackModel(String Function(String) getCoverArtUrl, String Function(String) getStreamUrl) {
+  TrackModel toTrackModel(
+    String Function(String) getCoverArtUrl,
+    String Function(String) getStreamUrl,
+  ) {
     return TrackModel(
       id: id,
       title: title,

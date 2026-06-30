@@ -80,8 +80,13 @@ class DeezerService {
   }
 
   /// Fetch artist's top tracks.
-  Future<List<DeezerTrack>> getArtistTopTracks(int artistId, {int limit = 25}) async {
-    final data = await _client.get('$_baseUrl/artist/$artistId/top?limit=$limit');
+  Future<List<DeezerTrack>> getArtistTopTracks(
+    int artistId, {
+    int limit = 25,
+  }) async {
+    final data = await _client.get(
+      '$_baseUrl/artist/$artistId/top?limit=$limit',
+    );
     final results = data['data'] as List<dynamic>? ?? [];
     return results
         .map((item) => DeezerTrack.fromJson(item as Map<String, dynamic>))

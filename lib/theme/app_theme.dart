@@ -5,11 +5,19 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   // Library / Dark Theme
-  static const Color libraryBackground = Color(0xFF181520); // Deep dark purple/grey
-  static const Color librarySurface = Color(0xFF232030); 
-  static const Color libraryPillBg = Color(0xFF485655); // Album/Artist dark pills
-  static const Color libraryPillActiveBg = Color(0xFF55826A); // Greenish active pill
-  static const Color libraryTextGreen = Color(0xFF89B99E); // "Library" text color
+  static const Color libraryBackground = Color(
+    0xFF181520,
+  ); // Deep dark purple/grey
+  static const Color librarySurface = Color(0xFF232030);
+  static const Color libraryPillBg = Color(
+    0xFF485655,
+  ); // Album/Artist dark pills
+  static const Color libraryPillActiveBg = Color(
+    0xFF55826A,
+  ); // Greenish active pill
+  static const Color libraryTextGreen = Color(
+    0xFF89B99E,
+  ); // "Library" text color
 
   // Now Playing / Earthy Theme
   static const Color playerBackground = Color(0xFF583311); // Deep brown
@@ -108,7 +116,6 @@ class AppTheme {
     ),
     dividerColor: AppColors.textMuted.withValues(alpha: 0.2),
     iconTheme: const IconThemeData(color: AppColors.white),
-
   );
 
   static ThemeData get light => ThemeData(
@@ -146,6 +153,5 @@ class AppTheme {
     ),
     dividerColor: AppColors.textMuted.withValues(alpha: 0.2),
     iconTheme: const IconThemeData(color: AppColors.black),
-
   );
 }

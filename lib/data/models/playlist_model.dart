@@ -56,7 +56,8 @@ class PlaylistModel {
       songCount: map['songCount'] ?? 0,
       source: map['source'] ?? 'local',
       tracks: List<TrackModel>.from(
-          (map['tracks'] as List? ?? []).map((x) => _trackFromMap(x))),
+        (map['tracks'] as List? ?? []).map((x) => _trackFromMap(x)),
+      ),
     );
   }
 

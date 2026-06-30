@@ -19,7 +19,8 @@ class PlayerScreen extends StatefulWidget {
   State<PlayerScreen> createState() => _PlayerScreenState();
 }
 
-class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderStateMixin {
+class _PlayerScreenState extends State<PlayerScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _enterCtrl;
   bool _isFavorite = false;
   bool _isShuffle = false;
@@ -39,12 +40,12 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
 
   Future<void> _handleDownload(BuildContext context, dynamic track) async {
     if (track == null || _isDownloading) return;
-    
+
     setState(() {
       _isDownloading = true;
       _downloadProgress = 0.0;
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Starting download for ${track.title}...')),
     );
@@ -63,7 +64,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
 
       // 2. Download and save with progress
       final downloadedPath = await _downloadService.downloadTrack(
-        url, 
+        url,
         '${track.title} - ${track.artist}',
         albumArtUrl: track.albumArt,
         onProgress: (progress) {
@@ -74,18 +75,20 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
           }
         },
       );
-      
+
       if (downloadedPath != null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Download complete! Added to local music.')),
+            const SnackBar(
+              content: Text('Download complete! Added to local music.'),
+            ),
           );
           // Scan the newly downloaded file so it appears in the MediaStore
           final playerProvider = context.read<PlayerProvider>();
-          
+
           // Add it manually to the UI immediately
           playerProvider.addDownloadedTrack(track, downloadedPath);
-          
+
           // Then run background scan and refresh
           await playerProvider.scanMedia(downloadedPath);
           await playerProvider.loadLibrary();
@@ -137,62 +140,81 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                      
-                      // 1. Top Bar
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildTopIconButton(
-                            icon: Icons.keyboard_arrow_down_rounded,
-                            onTap: () => Navigator.maybePop(context),
-                          ),
-                          Text(
-                            'Now Playing',
-                            style: AppTypography.display(
-                              size: 16,
-                              weight: FontWeight.w700,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          _buildTopIconButton(
-                            icon: Icons.queue_music_rounded,
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (context) => const FractionallySizedBox(
-                                  heightFactor: 0.9,
-                                  child: QueueBottomSheet(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
 
-                      const Spacer(),
-
-                      // 2. The Album Art (Large Square)
-                      Container(
-                        width: double.infinity,
-                        height: MediaQuery.of(context).size.width - 48, // perfect square
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(24),
+                    // 1. Top Bar
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildTopIconButton(
+                          icon: Icons.keyboard_arrow_down_rounded,
+                          onTap: () => Navigator.maybePop(context),
                         ),
-                        clipBehavior: Clip.antiAlias,
-                        child: track != null
-                            ? (!track.isLocal && track.albumArt.isNotEmpty
+                        Text(
+                          'Now Playing',
+                          style: AppTypography.display(
+                            size: 16,
+                            weight: FontWeight.w700,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        _buildTopIconButton(
+                          icon: Icons.queue_music_rounded,
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => const FractionallySizedBox(
+                                heightFactor: 0.9,
+                                child: QueueBottomSheet(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+
+                    const Spacer(),
+
+                    // 2. The Album Art (Large Square)
+                    Container(
+                      width: double.infinity,
+                      height:
+                          MediaQuery.of(context).size.width -
+                          48, // perfect square
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: track != null
+                          ? (!track.isLocal && track.albumArt.isNotEmpty
                                 ? CachedNetworkImage(
                                     imageUrl: track.albumArt,
                                     fit: BoxFit.cover,
                                     placeholder: (context, url) => Center(
-                                      child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24), size: 80),
+                                      child: Icon(
+                                        Icons.music_note_rounded,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.24),
+                                        size: 80,
+                                      ),
                                     ),
-                                    errorWidget: (context, url, error) => Center(
-                                      child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24), size: 80),
-                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        Center(
+                                          child: Icon(
+                                            Icons.music_note_rounded,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withOpacity(0.24),
+                                            size: 80,
+                                          ),
+                                        ),
                                   )
                                 : QueryArtworkWidget(
                                     id: track.albumId ?? 0,
@@ -204,81 +226,102 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                     artworkHeight: double.infinity,
                                     size: 1000,
                                     nullArtworkWidget: Center(
-                                      child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24), size: 80),
+                                      child: Icon(
+                                        Icons.music_note_rounded,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.24),
+                                        size: 80,
+                                      ),
                                     ),
                                   ))
-                            : Center(
-                                child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24), size: 80),
+                          : Center(
+                              child: Icon(
+                                Icons.music_note_rounded,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.24),
+                                size: 80,
                               ),
-                      ),
-
-                      const Spacer(),
-
-                      // 3. Track Info Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  track?.title ?? 'No Track',
-                                  style: AppTypography.display(
-                                    size: 28,
-                                    weight: FontWeight.w800,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                SizedBox(
-                                  height: 20,
-                                  child: Marquee(
-                                    text: track?.artist ?? 'Unknown Artist',
-                                    style: AppTypography.body(
-                                      size: 16,
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                                      weight: FontWeight.w500,
-                                    ),
-                                    scrollAxis: Axis.horizontal,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    blankSpace: 40.0,
-                                    velocity: 30.0,
-                                    pauseAfterRound: const Duration(seconds: 2),
-                                    startPadding: 0.0,
-                                    accelerationDuration: const Duration(seconds: 1),
-                                    accelerationCurve: Curves.easeIn,
-                                    decelerationDuration: const Duration(milliseconds: 500),
-                                    decelerationCurve: Curves.easeOut,
-                                  ),
-                                ),
-                              ],
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Row(
+                    ),
+
+                    const Spacer(),
+
+                    // 3. Track Info Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildActionSquare(
-                                icon: track != null && player.isFavorite(track) 
-                                    ? Icons.favorite_rounded 
-                                    : Icons.favorite_border_rounded,
-                                onTap: () {
-                                  if (track != null) {
-                                    player.toggleFavorite(track);
-                                  }
-                                },
+                              Text(
+                                track?.title ?? 'No Track',
+                                style: AppTypography.display(
+                                  size: 28,
+                                  weight: FontWeight.w800,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                height: 20,
+                                child: Marquee(
+                                  text: track?.artist ?? 'Unknown Artist',
+                                  style: AppTypography.body(
+                                    size: 16,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.7),
+                                    weight: FontWeight.w500,
+                                  ),
+                                  scrollAxis: Axis.horizontal,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  blankSpace: 40.0,
+                                  velocity: 30.0,
+                                  pauseAfterRound: const Duration(seconds: 2),
+                                  startPadding: 0.0,
+                                  accelerationDuration: const Duration(
+                                    seconds: 1,
+                                  ),
+                                  accelerationCurve: Curves.easeIn,
+                                  decelerationDuration: const Duration(
+                                    milliseconds: 500,
+                                  ),
+                                  decelerationCurve: Curves.easeOut,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Row(
+                          children: [
+                            _buildActionSquare(
+                              icon: track != null && player.isFavorite(track)
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              onTap: () {
+                                if (track != null) {
+                                  player.toggleFavorite(track);
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            _buildActionSquare(
+                              icon: Icons.lyrics_rounded,
+                              onTap: () {},
+                            ),
+                            if (track != null && !track.isLocal) ...[
                               const SizedBox(width: 8),
-                              _buildActionSquare(
-                                icon: Icons.lyrics_rounded,
-                                onTap: () {},
-                              ),
-                              if (track != null && !track.isLocal) ...[
-                                const SizedBox(width: 8),
-                                _isDownloading 
+                              _isDownloading
                                   ? SizedBox(
                                       width: 48,
                                       height: 48,
@@ -291,13 +334,18 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                             child: CircularProgressIndicator(
                                               value: _downloadProgress,
                                               strokeWidth: 2.5,
-                                              backgroundColor: AppColors.white.withOpacity(0.1),
-                                              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.libraryTextGreen),
+                                              backgroundColor: AppColors.white
+                                                  .withOpacity(0.1),
+                                              valueColor:
+                                                  const AlwaysStoppedAnimation<
+                                                    Color
+                                                  >(AppColors.libraryTextGreen),
                                             ),
                                           ),
                                           Icon(
-                                            Icons.download_rounded, 
-                                            color: AppColors.libraryTextGreen.withOpacity(0.5),
+                                            Icons.download_rounded,
+                                            color: AppColors.libraryTextGreen
+                                                .withOpacity(0.5),
                                             size: 20,
                                           ),
                                         ],
@@ -305,120 +353,139 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                                     )
                                   : _buildActionSquare(
                                       icon: Icons.download_rounded,
-                                      onTap: () => _handleDownload(context, track),
+                                      onTap: () =>
+                                          _handleDownload(context, track),
                                     ),
-                              ],
-                              const SizedBox(width: 8),
-                              _buildActionSquare(
-                                icon: Icons.more_vert_rounded,
-                                onTap: () {
-                                  if (track != null) {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      backgroundColor: Colors.transparent,
-                                      builder: (context) => FractionallySizedBox(
-                                        heightFactor: 0.6,
-                                        child: AddToPlaylistSheet(track: track),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
                             ],
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // 4. Wavy Music Slider
-                      StreamBuilder<Duration>(
-                        stream: player.positionStream,
-                        builder: (context, snapshot) {
-                          final position = snapshot.data ?? player.position;
-                          final duration = player.duration;
-                          final progress = duration.inSeconds > 0
-                              ? position.inSeconds / duration.inSeconds
-                              : 0.0;
-
-                          return Column(
-                            children: [
-                              WavyMusicSlider(
-                                value: progress.clamp(0.0, 1.0),
-                                isPlaying: player.isPlaying,
-                                activeColor: AppColors.pillPaleOrange,
-                                inactiveColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-                                onChanged: (v) {
-                                  player.seek(
-                                    Duration(seconds: (v * duration.inSeconds).round()),
+                            const SizedBox(width: 8),
+                            _buildActionSquare(
+                              icon: Icons.more_vert_rounded,
+                              onTap: () {
+                                if (track != null) {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (context) => FractionallySizedBox(
+                                      heightFactor: 0.6,
+                                      child: AddToPlaylistSheet(track: track),
+                                    ),
                                   );
-                                },
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    _fmt(position),
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // 4. Wavy Music Slider
+                    StreamBuilder<Duration>(
+                      stream: player.positionStream,
+                      builder: (context, snapshot) {
+                        final position = snapshot.data ?? player.position;
+                        final duration = player.duration;
+                        final progress = duration.inSeconds > 0
+                            ? position.inSeconds / duration.inSeconds
+                            : 0.0;
+
+                        return Column(
+                          children: [
+                            WavyMusicSlider(
+                              value: progress.clamp(0.0, 1.0),
+                              isPlaying: player.isPlaying,
+                              activeColor: AppColors.pillPaleOrange,
+                              inactiveColor: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.2),
+                              onChanged: (v) {
+                                player.seek(
+                                  Duration(
+                                    seconds: (v * duration.inSeconds).round(),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _fmt(position),
+                                  style: AppTypography.label(
+                                    size: 12,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                    weight: FontWeight.w600,
+                                  ),
+                                ),
+                                // Quality Badge
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '44.1 kHz • 720 kbps • FLAC',
                                     style: AppTypography.label(
-                                      size: 12,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      weight: FontWeight.w600,
+                                      size: 10,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface.withOpacity(0.8),
                                     ),
                                   ),
-                                  // Quality Badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      '44.1 kHz • 720 kbps • FLAC',
-                                      style: AppTypography.label(
-                                        size: 10,
-                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-                                      ),
-                                    ),
+                                ),
+                                Text(
+                                  _fmt(duration),
+                                  style: AppTypography.label(
+                                    size: 12,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                    weight: FontWeight.w600,
                                   ),
-                                  Text(
-                                    _fmt(duration),
-                                    style: AppTypography.label(
-                                      size: 12,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      weight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
+                    ),
 
-                      const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                      // 5. Playback Controls (Animated)
-                      AnimatedPlaybackControls(
-                        isPlaying: player.isPlaying,
-                        onPrevious: () => player.skipPrev(),
-                        onPlayPause: () => player.togglePlayPause(),
-                        onNext: () => player.skipNext(),
-                      ),
+                    // 5. Playback Controls (Animated)
+                    AnimatedPlaybackControls(
+                      isPlaying: player.isPlaying,
+                      onPrevious: () => player.skipPrev(),
+                      onPlayPause: () => player.togglePlayPause(),
+                      onNext: () => player.skipNext(),
+                    ),
 
-                      const Spacer(),
-                    ],
-                  ),
+                    const Spacer(),
+                  ],
                 ),
               ),
             ),
+          ),
         );
       },
     );
   }
 
-  Widget _buildTopIconButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildTopIconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -427,12 +494,19 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 22),
+        child: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.onSurface,
+          size: 22,
+        ),
       ),
     );
   }
 
-  Widget _buildActionSquare({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildActionSquare({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -442,7 +516,11 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 20),
+        child: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.onSurface,
+          size: 20,
+        ),
       ),
     );
   }

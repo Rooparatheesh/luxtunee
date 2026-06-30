@@ -29,7 +29,9 @@ class DeezerTrack {
       titleShort: (json['title_short'] as String?) ?? '',
       duration: (json['duration'] as int?) ?? 0,
       preview: (json['preview'] as String?) ?? '',
-      artist: DeezerArtist.fromJson(json['artist'] as Map<String, dynamic>? ?? {}),
+      artist: DeezerArtist.fromJson(
+        json['artist'] as Map<String, dynamic>? ?? {},
+      ),
       album: DeezerAlbum.fromJson(json['album'] as Map<String, dynamic>? ?? {}),
     );
   }
@@ -38,7 +40,7 @@ class DeezerTrack {
 class DeezerArtist {
   final int id;
   final String name;
-  final String picture;       // small
+  final String picture; // small
   final String pictureMedium;
   final String pictureBig;
 
@@ -64,7 +66,7 @@ class DeezerArtist {
 class DeezerAlbum {
   final int id;
   final String title;
-  final String cover;         // small
+  final String cover; // small
   final String coverMedium;
   final String coverBig;
   final String coverXl;

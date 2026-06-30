@@ -6,13 +6,18 @@ import 'package:permission_handler/permission_handler.dart';
 class DownloadService {
   /// Downloads an audio file from a URL and saves it to the device's public Music folder.
   /// Returns the path to the downloaded file, or null if it failed.
-  Future<String?> downloadTrack(String url, String filename, {String? albumArtUrl, Function(double)? onProgress}) async {
+  Future<String?> downloadTrack(
+    String url,
+    String filename, {
+    String? albumArtUrl,
+    Function(double)? onProgress,
+  }) async {
     if (Platform.isAndroid) {
       var status = await Permission.storage.status;
       if (!status.isGranted) {
         status = await Permission.storage.request();
       }
-      
+
       // For Android 13+ we need audio permissions or manage external storage
       var audioStatus = await Permission.audio.status;
       if (!audioStatus.isGranted) {
@@ -22,7 +27,7 @@ class DownloadService {
 
     try {
       Directory? baseDirectory;
-      
+
       if (Platform.isAndroid) {
         // Try to save to the public Music directory
         baseDirectory = Directory('/storage/emulated/0/Music');
@@ -31,7 +36,9 @@ class DownloadService {
             await baseDirectory.create(recursive: true);
           } catch (e) {
             // Fallback to app's external directory if we can't create public directory
-            final dirs = await getExternalStorageDirectories(type: StorageDirectory.music);
+            final dirs = await getExternalStorageDirectories(
+              type: StorageDirectory.music,
+            );
             if (dirs != null && dirs.isNotEmpty) {
               baseDirectory = dirs.first;
             } else {
@@ -47,7 +54,9 @@ class DownloadService {
 
       // Sanitize filename and create a dedicated folder for the song
       final safeName = filename.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_').trim();
-      final songDirectory = Directory('${baseDirectory.path}/LuxTune/$safeName');
+      final songDirectory = Directory(
+        '${baseDirectory.path}/LuxTune/$safeName',
+      );
       if (!await songDirectory.exists()) {
         await songDirectory.create(recursive: true);
       }
@@ -72,12 +81,12 @@ class DownloadService {
       final client = http.Client();
       final request = http.Request('GET', Uri.parse(url));
       final response = await client.send(request);
-      
+
       if (response.statusCode == 200) {
         final totalBytes = response.contentLength ?? 0;
         int receivedBytes = 0;
         final sink = file.openWrite();
-        
+
         await for (final chunk in response.stream) {
           receivedBytes += chunk.length;
           sink.add(chunk);
@@ -85,7 +94,7 @@ class DownloadService {
             onProgress(receivedBytes / totalBytes);
           }
         }
-        
+
         await sink.close();
         client.close();
         return audioPath;
@@ -94,7 +103,7 @@ class DownloadService {
     } catch (e) {
       // ignore
     }
-    
+
     return null;
   }
 }

@@ -5,7 +5,7 @@ import 'dart:io';
 class PairingUtils {
   static Future<String> getDeviceId() async {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    
+
     try {
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;

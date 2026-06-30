@@ -16,7 +16,7 @@ import 'providers/playlist_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     await Firebase.initializeApp();
   } catch (e) {
@@ -64,7 +64,7 @@ class LuxTuneApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
-    
+
     return MaterialApp(
       title: 'LuxTune',
       debugShowCheckedModeBanner: false,

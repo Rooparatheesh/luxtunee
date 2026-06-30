@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/player_provider.dart';
 import '../../../theme/app_theme.dart';
 import '../../components/add_to_playlist_sheet.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            
+
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -52,13 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: TextField(
                         controller: _searchController,
                         autofocus: true,
-                        style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface),
+                        style: AppTypography.body(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Search songs or artists...',
-                          hintStyle: AppTypography.body(color: AppColors.textMuted),
+                          hintStyle: AppTypography.body(
+                            color: AppColors.textMuted,
+                          ),
                           border: InputBorder.none,
                         ),
-                        onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+                        onChanged: (value) =>
+                            setState(() => _searchQuery = value.toLowerCase()),
                       ),
                     )
                   else
@@ -73,7 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(_isSearching ? Icons.close_rounded : Icons.search_rounded, color: Theme.of(context).colorScheme.onSurface),
+                        icon: Icon(
+                          _isSearching
+                              ? Icons.close_rounded
+                              : Icons.search_rounded,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         onPressed: () {
                           setState(() {
                             if (_isSearching) {
@@ -88,7 +99,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       if (!_isSearching)
                         IconButton(
-                          icon: Icon(Icons.more_vert_rounded, color: Theme.of(context).colorScheme.onSurface),
+                          icon: Icon(
+                            Icons.more_vert_rounded,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           onPressed: () {},
                         ),
                     ],
@@ -96,9 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Filters
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -110,9 +124,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => setState(() => _selectedFilter = index),
                     child: Container(
                       margin: const EdgeInsets.only(right: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.libraryPillActiveBg : AppColors.libraryPillBg,
+                        color: isSelected
+                            ? AppColors.libraryPillActiveBg
+                            : AppColors.libraryPillBg,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -120,7 +139,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: AppTypography.label(
                           size: 12,
                           weight: FontWeight.w600,
-                          color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -128,25 +151,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 }),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Track List
             Expanded(
               child: Consumer<PlayerProvider>(
                 builder: (context, player, child) {
                   if (player.isLoading) {
                     return Center(
-                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     );
                   }
-                  
+
                   var filteredTracks = player.tracks;
                   if (_searchQuery.isNotEmpty) {
-                    filteredTracks = filteredTracks.where((track) => 
-                      track.title.toLowerCase().contains(_searchQuery) ||
-                      track.artist.toLowerCase().contains(_searchQuery)
-                    ).toList();
+                    filteredTracks = filteredTracks
+                        .where(
+                          (track) =>
+                              track.title.toLowerCase().contains(
+                                _searchQuery,
+                              ) ||
+                              track.artist.toLowerCase().contains(_searchQuery),
+                        )
+                        .toList();
                   }
 
                   if (filteredTracks.isEmpty) {
@@ -157,22 +187,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   }
-                  
+
                   // Ensure we pad the bottom so the mini player doesn't hide the last items
                   return ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 100), 
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
                     itemCount: filteredTracks.length,
                     itemBuilder: (context, index) {
                       final track = filteredTracks[index];
                       final isPlaying = player.currentTrack?.id == track.id;
-                      
+
                       return GestureDetector(
-                          onTap: () {
-                            player.playTrack(
-                              track,
-                              newQueue: filteredTracks,
-                            );
-                          },
+                        onTap: () {
+                          player.playTrack(track, newQueue: filteredTracks);
+                        },
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 16),
                           child: Row(
@@ -192,12 +219,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   artworkBorder: BorderRadius.circular(8),
                                   keepOldArtwork: true,
                                   nullArtworkWidget: const Center(
-                                    child: Icon(Icons.music_note_rounded, color: AppColors.textMuted),
+                                    child: Icon(
+                                      Icons.music_note_rounded,
+                                      color: AppColors.textMuted,
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              
+
                               // Track Details
                               Expanded(
                                 child: Column(
@@ -208,7 +238,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       style: AppTypography.body(
                                         size: 15,
                                         weight: FontWeight.w600,
-                                        color: isPlaying ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
+                                        color: isPlaying
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.primary
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -226,10 +262,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                               ),
-                              
+
                               // Options / More
                               PopupMenuButton<String>(
-                                icon: const Icon(Icons.more_vert_rounded, color: AppColors.textMuted),
+                                icon: const Icon(
+                                  Icons.more_vert_rounded,
+                                  color: AppColors.textMuted,
+                                ),
                                 color: Theme.of(context).cardColor,
                                 onSelected: (value) {
                                   if (value == 'remove') {
@@ -239,10 +278,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       context: context,
                                       isScrollControlled: true,
                                       backgroundColor: Colors.transparent,
-                                      builder: (context) => FractionallySizedBox(
-                                        heightFactor: 0.6,
-                                        child: AddToPlaylistSheet(track: track),
-                                      ),
+                                      builder: (context) =>
+                                          FractionallySizedBox(
+                                            heightFactor: 0.6,
+                                            child: AddToPlaylistSheet(
+                                              track: track,
+                                            ),
+                                          ),
                                     );
                                   }
                                 },
@@ -251,9 +293,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                     value: 'add_playlist',
                                     child: Row(
                                       children: [
-                                        const Icon(Icons.playlist_add_rounded, color: AppColors.textMuted, size: 20),
+                                        const Icon(
+                                          Icons.playlist_add_rounded,
+                                          color: AppColors.textMuted,
+                                          size: 20,
+                                        ),
                                         const SizedBox(width: 8),
-                                        Text('Add to Playlist', style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface)),
+                                        Text(
+                                          'Add to Playlist',
+                                          style: AppTypography.body(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -261,9 +314,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                     value: 'remove',
                                     child: Row(
                                       children: [
-                                        const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
+                                        const Icon(
+                                          Icons.delete_outline_rounded,
+                                          color: Colors.redAccent,
+                                          size: 20,
+                                        ),
                                         const SizedBox(width: 8),
-                                        Text('Remove from Library', style: AppTypography.body(color: Colors.redAccent)),
+                                        Text(
+                                          'Remove from Library',
+                                          style: AppTypography.body(
+                                            color: Colors.redAccent,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -283,5 +345,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }

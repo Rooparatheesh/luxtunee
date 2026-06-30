@@ -8,10 +8,7 @@ import '../../theme/app_theme.dart';
 class AddToPlaylistSheet extends StatelessWidget {
   final TrackModel track;
 
-  const AddToPlaylistSheet({
-    super.key,
-    required this.track,
-  });
+  const AddToPlaylistSheet({super.key, required this.track});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +24,9 @@ class AddToPlaylistSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -37,10 +36,7 @@ class AddToPlaylistSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Add to Playlist',
-                  style: AppTypography.heading(size: 18),
-                ),
+                Text('Add to Playlist', style: AppTypography.heading(size: 18)),
                 TextButton.icon(
                   onPressed: () {
                     _showCreatePlaylistDialog(context);
@@ -65,14 +61,18 @@ class AddToPlaylistSheet extends StatelessWidget {
                   itemCount: provider.playlists.length,
                   itemBuilder: (context, index) {
                     final playlist = provider.playlists[index];
-                    final isAlreadyAdded = playlist.tracks.any((t) => t.id == track.id);
-                    
+                    final isAlreadyAdded = playlist.tracks.any(
+                      (t) => t.id == track.id,
+                    );
+
                     return ListTile(
                       leading: Container(
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -80,19 +80,30 @@ class AddToPlaylistSheet extends StatelessWidget {
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      title: Text(playlist.title, style: AppTypography.body(weight: FontWeight.w600)),
+                      title: Text(
+                        playlist.title,
+                        style: AppTypography.body(weight: FontWeight.w600),
+                      ),
                       subtitle: Text('${playlist.tracks.length} tracks'),
-                      trailing: isAlreadyAdded 
-                          ? Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary)
+                      trailing: isAlreadyAdded
+                          ? Icon(
+                              Icons.check_circle,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
                           : null,
                       onTap: () {
                         if (isAlreadyAdded) {
-                          provider.removeTrackFromPlaylist(playlist.id, track.id);
+                          provider.removeTrackFromPlaylist(
+                            playlist.id,
+                            track.id,
+                          );
                         } else {
                           provider.addTrackToPlaylist(playlist.id, track);
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Added to ${playlist.title}')),
+                            SnackBar(
+                              content: Text('Added to ${playlist.title}'),
+                            ),
                           );
                         }
                       },
@@ -116,9 +127,7 @@ class AddToPlaylistSheet extends StatelessWidget {
           title: const Text('New Playlist'),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(
-              hintText: 'Playlist Name',
-            ),
+            decoration: const InputDecoration(hintText: 'Playlist Name'),
             autofocus: true,
           ),
           actions: [

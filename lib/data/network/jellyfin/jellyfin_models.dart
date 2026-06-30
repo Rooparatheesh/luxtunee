@@ -27,7 +27,11 @@ class JellyfinCredentials {
     return url;
   }
 
-  bool get hasToken => accessToken != null && accessToken!.isNotEmpty && userId != null && userId!.isNotEmpty;
+  bool get hasToken =>
+      accessToken != null &&
+      accessToken!.isNotEmpty &&
+      userId != null &&
+      userId!.isNotEmpty;
 }
 
 class JellyfinSong {
@@ -83,13 +87,18 @@ class JellyfinSong {
     );
   }
 
-  TrackModel toTrackModel(String Function(String) getCoverArtUrl, String Function(String) getStreamUrl) {
+  TrackModel toTrackModel(
+    String Function(String) getCoverArtUrl,
+    String Function(String) getStreamUrl,
+  ) {
     return TrackModel(
       id: id,
       title: name,
       artist: artists.isNotEmpty ? artists.join(', ') : 'Unknown Artist',
       album: album,
-      albumArt: hasPrimaryImage ? getCoverArtUrl(id) : (albumId != null ? getCoverArtUrl(albumId!) : ''),
+      albumArt: hasPrimaryImage
+          ? getCoverArtUrl(id)
+          : (albumId != null ? getCoverArtUrl(albumId!) : ''),
       audioUrl: getStreamUrl(id),
       duration: Duration(milliseconds: durationMs),
       source: 'jellyfin',

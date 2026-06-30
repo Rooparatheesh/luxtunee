@@ -52,9 +52,7 @@ class MiniPlayer extends StatelessWidget {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
                   clipBehavior: Clip.antiAlias,
                   child: !track.isLocal && track.albumArt.isNotEmpty
                       ? CachedNetworkImage(
@@ -64,11 +62,21 @@ class MiniPlayer extends StatelessWidget {
                           fadeOutDuration: Duration.zero,
                           placeholder: (context, url) => Container(
                             color: Theme.of(context).colorScheme.surface,
-                            child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
+                            child: Icon(
+                              Icons.music_note_rounded,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.54),
+                            ),
                           ),
                           errorWidget: (context, url, error) => Container(
                             color: Theme.of(context).colorScheme.surface,
-                            child: Icon(Icons.music_note_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
+                            child: Icon(
+                              Icons.music_note_rounded,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.54),
+                            ),
                           ),
                         )
                       : QueryArtworkWidget(
@@ -79,13 +87,15 @@ class MiniPlayer extends StatelessWidget {
                             color: Theme.of(context).colorScheme.surface,
                             child: Icon(
                               Icons.music_note_rounded,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.54),
                             ),
                           ),
                         ),
                 ),
                 const SizedBox(width: 12),
-                
+
                 // Track Details
                 Expanded(
                   child: Column(
@@ -106,7 +116,9 @@ class MiniPlayer extends StatelessWidget {
                         track.artist,
                         style: AppTypography.label(
                           size: 11,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -114,7 +126,7 @@ class MiniPlayer extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // Controls
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -125,7 +137,9 @@ class MiniPlayer extends StatelessWidget {
                         padding: const EdgeInsets.all(8),
                         color: Colors.transparent, // Ensure gesture area
                         child: Icon(
-                          player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          player.isPlaying
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
                           color: Theme.of(context).colorScheme.onSurface,
                           size: 32,
                         ),
@@ -137,7 +151,11 @@ class MiniPlayer extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         color: Colors.transparent, // Ensure gesture area
-                        child: Icon(Icons.skip_next_rounded, color: Theme.of(context).colorScheme.onSurface, size: 32),
+                        child: Icon(
+                          Icons.skip_next_rounded,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          size: 32,
+                        ),
                       ),
                     ),
                   ],

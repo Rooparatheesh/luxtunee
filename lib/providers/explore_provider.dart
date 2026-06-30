@@ -18,7 +18,8 @@ class ExploreProvider extends ChangeNotifier {
 
   String currentCategory = 'Trending';
   String currentQuery = '';
-  String currentSource = 'YouTube'; // Deezer, Navidrome, Jellyfin, NetEase, YouTube
+  String currentSource =
+      'YouTube'; // Deezer, Navidrome, Jellyfin, NetEase, YouTube
 
   final DeezerService _deezerService = DeezerService();
   final LrcLibService _lrcLibService = LrcLibService();
@@ -35,7 +36,10 @@ class ExploreProvider extends ChangeNotifier {
     fetchTrending();
   }
 
-  Future<void> fetchTrending({String query = '', String categoryName = 'Trending'}) async {
+  Future<void> fetchTrending({
+    String query = '',
+    String categoryName = 'Trending',
+  }) async {
     currentCategory = categoryName;
     currentQuery = query;
 
@@ -54,7 +58,9 @@ class ExploreProvider extends ChangeNotifier {
         trendingTracks = deezerTracks.map((dt) {
           final albumArt = dt.album.coverXl.isNotEmpty
               ? dt.album.coverXl
-              : dt.album.coverBig.isNotEmpty ? dt.album.coverBig : dt.album.coverMedium;
+              : dt.album.coverBig.isNotEmpty
+              ? dt.album.coverBig
+              : dt.album.coverMedium;
           return TrackModel(
             id: dt.id.toString(),
             title: dt.title,
@@ -66,7 +72,6 @@ class ExploreProvider extends ChangeNotifier {
             source: 'deezer',
           );
         }).toList();
-
       } else if (currentSource == 'Navidrome') {
         final url = prefs.getString('navidrome_url') ?? '';
         final user = prefs.getString('navidrome_user') ?? '';
@@ -74,19 +79,24 @@ class ExploreProvider extends ChangeNotifier {
         if (url.isEmpty || user.isEmpty || pass.isEmpty) {
           throw Exception('Please configure Navidrome in Settings');
         }
-        _navidromeService.setCredentials(NavidromeCredentials(serverUrl: url, username: user, password: pass));
-        
+        _navidromeService.setCredentials(
+          NavidromeCredentials(serverUrl: url, username: user, password: pass),
+        );
+
         // Navidrome doesn't have a direct 'trending', we can use search with a generic query or getAlbumList
         // Let's just use searchSongs to get some random/initial tracks if query is empty
-        final navidromeTracks = query.isEmpty 
+        final navidromeTracks = query.isEmpty
             ? await _navidromeService.searchSongs('a') // simple generic query
             : await _navidromeService.searchSongs(query);
-            
-        trendingTracks = navidromeTracks.map((s) => s.toTrackModel(
-          (id) => _navidromeService.getCoverArtUrl(id), 
-          (id) => _navidromeService.getStreamUrl(id)
-        )).toList();
 
+        trendingTracks = navidromeTracks
+            .map(
+              (s) => s.toTrackModel(
+                (id) => _navidromeService.getCoverArtUrl(id),
+                (id) => _navidromeService.getStreamUrl(id),
+              ),
+            )
+            .toList();
       } else if (currentSource == 'Jellyfin') {
         final url = prefs.getString('jellyfin_url') ?? '';
         final user = prefs.getString('jellyfin_user') ?? '';
@@ -95,34 +105,41 @@ class ExploreProvider extends ChangeNotifier {
           throw Exception('Please configure Jellyfin in Settings');
         }
         await _jellyfinService.authenticateByName(url, user, pass);
-        
-        final jellyfinTracks = query.isEmpty 
+
+        final jellyfinTracks = query.isEmpty
             ? await _jellyfinService.getMusicItems()
             : await _jellyfinService.searchSongs(query);
-            
-        trendingTracks = jellyfinTracks.map((s) => s.toTrackModel(
-          (id) => _jellyfinService.getImageUrl(id), 
-          (id) => _jellyfinService.getStreamUrl(id)
-        )).toList();
 
+        trendingTracks = jellyfinTracks
+            .map(
+              (s) => s.toTrackModel(
+                (id) => _jellyfinService.getImageUrl(id),
+                (id) => _jellyfinService.getStreamUrl(id),
+              ),
+            )
+            .toList();
       } else if (currentSource == 'NetEase') {
         // Just use search for NetEase as well, or a default query
         final neteaseTracks = query.isEmpty
             ? await _neteaseService.searchSongs('trending')
             : await _neteaseService.searchSongs(query);
-            
-        trendingTracks = neteaseTracks; // NeteaseService already returns TrackModel
+
+        trendingTracks =
+            neteaseTracks; // NeteaseService already returns TrackModel
       } else if (currentSource == 'YouTube') {
         final ytTracks = query.isEmpty
             ? await _youtubeService.searchSongs('Top music hits 2024')
             : await _youtubeService.searchSongs(query);
 
         // Map audioUrl using deferred stream URL extraction
-        trendingTracks = ytTracks.map((t) => t.copyWith(
-          audioUrl: '', // This will be handled on play
-        )).toList();
+        trendingTracks = ytTracks
+            .map(
+              (t) => t.copyWith(
+                audioUrl: '', // This will be handled on play
+              ),
+            )
+            .toList();
       }
-
     } catch (e) {
       error = e.toString().replaceAll('Exception: ', '');
     } finally {

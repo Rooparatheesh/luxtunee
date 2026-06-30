@@ -28,9 +28,12 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
@@ -38,7 +41,10 @@ class SettingsScreen extends StatelessWidget {
                 child: SwitchListTile(
                   title: Text(
                     'Dark Mode',
-                    style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
+                    style: AppTypography.body(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      weight: FontWeight.w600,
+                    ),
                   ),
                   subtitle: Text(
                     'Toggle dark and light theme',
@@ -52,7 +58,7 @@ class SettingsScreen extends StatelessWidget {
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
-              
+
               const SizedBox(height: 100), // Bottom padding for mini player
             ],
           ),

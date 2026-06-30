@@ -49,7 +49,10 @@ class LrcLibService {
   }
 
   /// Fallback: search endpoint returns multiple results, pick the best one.
-  Future<LrcLibResponse?> _searchFallback(String trackName, String artistName) async {
+  Future<LrcLibResponse?> _searchFallback(
+    String trackName,
+    String artistName,
+  ) async {
     try {
       final query = Uri.encodeComponent('$trackName $artistName');
       final body = await _client.getRaw('$_baseUrl/search?q=$query');

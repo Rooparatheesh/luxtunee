@@ -115,8 +115,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -327,8 +325,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 }
-
-
 
 // ─────────────────────────────────────────────
 // Email / primary CTA button

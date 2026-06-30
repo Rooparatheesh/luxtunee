@@ -10,18 +10,18 @@ class YoutubeService {
   Future<List<TrackModel>> searchSongs(String query, {int limit = 25}) async {
     try {
       final searchResults = await _yt.search.search(query);
-      
+
       final List<TrackModel> tracks = [];
       int count = 0;
-      
+
       for (final video in searchResults) {
         if (count >= limit) break;
         if (video.isLive) continue; // Skip live streams
-        
+
         final duration = video.duration ?? Duration.zero;
         if (duration == Duration.zero) continue;
 
-        // Use highResUrl (hqdefault.jpg) as it is practically guaranteed to exist, 
+        // Use highResUrl (hqdefault.jpg) as it is practically guaranteed to exist,
         // avoiding 404 errors that occur when maxresdefault.jpg is missing.
         final albumArt = video.thumbnails.highResUrl;
 
@@ -50,14 +50,16 @@ class YoutubeService {
     try {
       final manifest = await _yt.videos.streamsClient.getManifest(videoId);
       StreamInfo? streamInfo;
-      
+
       try {
         // Muxed streams (video+audio) are much less likely to return 403 Forbidden on ExoPlayer
         streamInfo = manifest.muxed.withHighestBitrate();
       } catch (_) {
         // Fallback to audioOnly if muxed is missing (e.g. Official Music tracks)
         try {
-          final mp4Audio = manifest.audioOnly.where((s) => s.container.name == 'mp4');
+          final mp4Audio = manifest.audioOnly.where(
+            (s) => s.container.name == 'mp4',
+          );
           if (mp4Audio.isNotEmpty) {
             streamInfo = mp4Audio.withHighestBitrate();
           } else {
@@ -68,7 +70,7 @@ class YoutubeService {
           streamInfo = manifest.audioOnly.first;
         }
       }
-      
+
       return streamInfo.url.toString();
     } catch (e) {
       throw Exception('Failed to get YouTube stream URL: $e');

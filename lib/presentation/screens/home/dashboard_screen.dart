@@ -55,7 +55,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: AppTypography.body(color: AppColors.textMuted),
               ),
               const SizedBox(height: 32),
-              
+
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
@@ -69,12 +69,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         builder: (context, explore, _) {
                           if (explore.isLoading) {
                             return SizedBox(
-                              height: 160, 
-                              child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
+                              height: 160,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
                             );
                           }
                           if (explore.trendingTracks.isEmpty) {
-                            return SizedBox(height: 160, child: Center(child: Text('No online tracks', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))));
+                            return SizedBox(
+                              height: 160,
+                              child: Center(
+                                child: Text(
+                                  'No online tracks',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+                            );
                           }
                           return SizedBox(
                             height: 160,
@@ -96,29 +112,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     width: 120,
                                     margin: const EdgeInsets.only(right: 16),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Container(
                                           height: 120,
                                           width: 120,
                                           decoration: BoxDecoration(
                                             color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             image: track.albumArt.isNotEmpty
                                                 ? DecorationImage(
-                                                    image: CachedNetworkImageProvider(track.albumArt),
+                                                    image:
+                                                        CachedNetworkImageProvider(
+                                                          track.albumArt,
+                                                        ),
                                                     fit: BoxFit.cover,
                                                   )
                                                 : null,
                                           ),
                                           child: track.albumArt.isEmpty
-                                              ? const Center(child: Icon(Icons.music_note_rounded, size: 48, color: AppColors.textMuted))
+                                              ? const Center(
+                                                  child: Icon(
+                                                    Icons.music_note_rounded,
+                                                    size: 48,
+                                                    color: AppColors.textMuted,
+                                                  ),
+                                                )
                                               : null,
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
                                           track.title,
-                                          style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
+                                          style: AppTypography.body(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                            weight: FontWeight.w600,
+                                          ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -131,9 +164,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                       ),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // Offline Songs
                       _buildSectionTitle('Local Offline Music'),
                       const SizedBox(height: 16),
@@ -141,12 +174,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         builder: (context, player, _) {
                           if (player.isLoading) {
                             return SizedBox(
-                              height: 160, 
-                              child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
+                              height: 160,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
                             );
                           }
                           if (player.tracks.isEmpty) {
-                            return SizedBox(height: 160, child: Center(child: Text('No offline tracks found', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))));
+                            return SizedBox(
+                              height: 160,
+                              child: Center(
+                                child: Text(
+                                  'No offline tracks found',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+                            );
                           }
                           return SizedBox(
                             height: 160,
@@ -165,17 +214,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     width: 120,
                                     margin: const EdgeInsets.only(right: 16),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Container(
                                           height: 120,
                                           width: 120,
                                           decoration: BoxDecoration(
                                             color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                           ),
                                           child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             child: QueryArtworkWidget(
                                               id: track.albumId ?? 0,
                                               type: ArtworkType.ALBUM,
@@ -183,7 +237,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               keepOldArtwork: true,
                                               artworkFit: BoxFit.cover,
                                               nullArtworkWidget: const Center(
-                                                child: Icon(Icons.music_note_rounded, color: AppColors.textMuted, size: 48),
+                                                child: Icon(
+                                                  Icons.music_note_rounded,
+                                                  color: AppColors.textMuted,
+                                                  size: 48,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -191,7 +249,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         const SizedBox(height: 8),
                                         Text(
                                           track.title,
-                                          style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
+                                          style: AppTypography.body(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                            weight: FontWeight.w600,
+                                          ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -204,9 +267,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                       ),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // Favorite Songs
                       _buildSectionTitle('Your Favorites'),
                       const SizedBox(height: 16),
@@ -214,10 +277,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         builder: (context, player, explore, _) {
                           if (player.favoriteTracks.isEmpty) {
                             return SizedBox(
-                              height: 160, 
+                              height: 160,
                               child: Center(
-                                child: Text('No favorite tracks yet', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)))
-                              )
+                                child: Text(
+                                  'No favorite tracks yet',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.7),
+                                  ),
+                                ),
+                              ),
                             );
                           }
                           return SizedBox(
@@ -231,48 +301,86 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 return GestureDetector(
                                   onTap: () => player.playTrack(
                                     track,
-                                    urlResolver: track.source == 'youtube' ? explore.getAudioUrl : null,
+                                    urlResolver: track.source == 'youtube'
+                                        ? explore.getAudioUrl
+                                        : null,
                                     newQueue: player.favoriteTracks,
                                   ),
                                   child: Container(
                                     width: 120,
                                     margin: const EdgeInsets.only(right: 16),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Container(
                                           height: 120,
                                           width: 120,
                                           decoration: BoxDecoration(
                                             color: AppColors.librarySurface,
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             image: track.albumArt.isNotEmpty
                                                 ? DecorationImage(
-                                                    image: CachedNetworkImageProvider(track.albumArt),
+                                                    image:
+                                                        CachedNetworkImageProvider(
+                                                          track.albumArt,
+                                                        ),
                                                     fit: BoxFit.cover,
                                                   )
                                                 : null,
                                           ),
                                           child: track.albumArt.isEmpty
-                                              ? (track.isLocal ? ClipRRect(
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  child: QueryArtworkWidget(
-                                                    id: track.albumId ?? 0,
-                                                    type: ArtworkType.ALBUM,
-                                                    artworkBorder: BorderRadius.zero,
-                                                    keepOldArtwork: true,
-                                                    artworkFit: BoxFit.cover,
-                                                    nullArtworkWidget: const Center(
-                                                      child: Icon(Icons.music_note_rounded, color: AppColors.textMuted, size: 48),
-                                                    ),
-                                                  ),
-                                                ) : const Center(child: Icon(Icons.music_note_rounded, color: AppColors.textMuted, size: 48)))
+                                              ? (track.isLocal
+                                                    ? ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                        child: QueryArtworkWidget(
+                                                          id:
+                                                              track.albumId ??
+                                                              0,
+                                                          type:
+                                                              ArtworkType.ALBUM,
+                                                          artworkBorder:
+                                                              BorderRadius.zero,
+                                                          keepOldArtwork: true,
+                                                          artworkFit:
+                                                              BoxFit.cover,
+                                                          nullArtworkWidget:
+                                                              const Center(
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .music_note_rounded,
+                                                                  color: AppColors
+                                                                      .textMuted,
+                                                                  size: 48,
+                                                                ),
+                                                              ),
+                                                        ),
+                                                      )
+                                                    : const Center(
+                                                        child: Icon(
+                                                          Icons
+                                                              .music_note_rounded,
+                                                          color: AppColors
+                                                              .textMuted,
+                                                          size: 48,
+                                                        ),
+                                                      ))
                                               : null,
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
                                           track.title,
-                                          style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
+                                          style: AppTypography.body(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                            weight: FontWeight.w600,
+                                          ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),

@@ -11,12 +11,13 @@ class PlayerProvider extends ChangeNotifier {
 
   ConcatenatingAudioSource? _playlist;
   List<TrackModel> tracks = []; // The complete local library
-  List<TrackModel> queue = [];  // The currently active playlist/queue
+  List<TrackModel> queue = []; // The currently active playlist/queue
   TrackModel? currentTrack;
   bool isPlaying = false;
   Duration position = Duration.zero;
   Duration duration = Duration.zero;
   bool isLoading = false;
+  bool _ignoreIndexChanges = false;
 
   List<TrackModel> favoriteTracks = [];
 
@@ -45,6 +46,7 @@ class PlayerProvider extends ChangeNotifier {
       if (dur != null) duration = dur;
     });
     _player.currentIndexStream.listen((index) {
+      if (_ignoreIndexChanges) return;
       if (index != null && queue.isNotEmpty && index < queue.length) {
         if (_currentResolver != null) {
           // Only handle if this is a genuinely new track (not re-triggered by our own playTrack call)
@@ -63,14 +65,14 @@ class PlayerProvider extends ChangeNotifier {
         isPlaying = state.playing;
         shouldNotify = true;
       }
-      
+
       if (state.processingState == ProcessingState.completed) {
         // Automatically play next track if we're using dynamic resolution and track finishes
         if (_currentResolver != null) {
           skipNext();
         }
       }
-      
+
       if (shouldNotify) notifyListeners();
     });
   }
@@ -100,7 +102,7 @@ class PlayerProvider extends ChangeNotifier {
       source: 'local',
       audioUrl: '', // No longer needs network URL
     );
-    
+
     // Avoid duplicates if we already have it
     if (!tracks.any((t) => t.uri == localTrack.uri)) {
       tracks.insert(0, localTrack);
@@ -108,30 +110,34 @@ class PlayerProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> playTrack(TrackModel track, {Future<String> Function(TrackModel)? urlResolver, List<TrackModel>? newQueue}) async {
+  Future<void> playTrack(
+    TrackModel track, {
+    Future<String> Function(TrackModel)? urlResolver,
+    List<TrackModel>? newQueue,
+  }) async {
     // Instantly update the UI so it feels snappy and doesn't lag
     currentTrack = track;
     if (urlResolver != null) {
       _currentResolver = urlResolver;
     } else if (track.isLocal) {
-      // If we are playing a local track, clear the previous resolver 
+      // If we are playing a local track, clear the previous resolver
       // so YouTube background logic doesn't interfere.
       _currentResolver = null;
     }
-    
+
     // Update the queue if a new one is provided, otherwise keep existing queue
     if (newQueue != null) {
       queue = List.from(newQueue);
     } else if (queue.isEmpty) {
       queue = List.from(tracks);
     }
-    
+
     notifyListeners();
 
     if (queue.isEmpty) {
       queue = [track];
     }
-    
+
     final initialIndex = queue.indexWhere((t) => t.id == track.id);
     final targetIndex = initialIndex >= 0 ? initialIndex : 0;
 
@@ -145,16 +151,20 @@ class PlayerProvider extends ChangeNotifier {
       queue[targetIndex] = track.copyWith(audioUrl: resolvedUrl);
       track = queue[targetIndex];
     }
-    
+
     // Build playlist with ALL queue items so background notification shows prev/next
     final children = queue.map((t) {
       final isRemote = !t.isLocal;
-      final artUri = isRemote && t.albumArt.isNotEmpty 
-          ? Uri.parse(t.albumArt) 
-          : Uri.parse('content://media/external/audio/albumart/${t.albumId ?? 0}');
-      
+      final artUri = isRemote && t.albumArt.isNotEmpty
+          ? Uri.parse(t.albumArt)
+          : Uri.parse(
+              'content://media/external/audio/albumart/${t.albumId ?? 0}',
+            );
+
       // Use a dummy URL for unresolved tracks — skipNext/skipPrev resolve real URLs before playing
-      final url = t.playbackSource.isNotEmpty ? t.playbackSource : 'https://example.com/placeholder.mp3';
+      final url = t.playbackSource.isNotEmpty
+          ? t.playbackSource
+          : 'https://example.com/placeholder.mp3';
 
       return AudioSource.uri(
         Uri.parse(url),
@@ -168,9 +178,14 @@ class PlayerProvider extends ChangeNotifier {
       );
     }).toList();
 
-    // Always build the full playlist so the notification shows prev/next buttons
-    _playlist = ConcatenatingAudioSource(children: children);
-    await _player.setAudioSource(_playlist!, initialIndex: targetIndex);
+    _ignoreIndexChanges = true;
+    try {
+      // Always build the full playlist so the notification shows prev/next buttons
+      _playlist = ConcatenatingAudioSource(children: children);
+      await _player.setAudioSource(_playlist!, initialIndex: targetIndex);
+    } finally {
+      _ignoreIndexChanges = false;
+    }
 
     await _player.play();
   }
@@ -182,6 +197,7 @@ class PlayerProvider extends ChangeNotifier {
   Future<void> seek(Duration position) async {
     await _player.seek(position);
   }
+
   Future<String> Function(TrackModel)? _currentResolver;
   bool _isHandlingBackgroundSkip = false;
 
@@ -190,12 +206,12 @@ class PlayerProvider extends ChangeNotifier {
   Future<void> _handleBackgroundSkip(int index) async {
     if (_isHandlingBackgroundSkip) return; // Prevent re-entrant calls
     _isHandlingBackgroundSkip = true;
-    
+
     try {
       final track = queue[index];
       currentTrack = track;
       notifyListeners();
-      
+
       // Resolve URL if needed
       if (_currentResolver != null && track.playbackSource.isEmpty) {
         try {
@@ -203,7 +219,7 @@ class PlayerProvider extends ChangeNotifier {
           queue[index] = track.copyWith(audioUrl: resolvedUrl);
         } catch (_) {}
       }
-      
+
       await playTrack(queue[index], urlResolver: _currentResolver);
     } finally {
       _isHandlingBackgroundSkip = false;

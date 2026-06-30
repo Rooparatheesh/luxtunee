@@ -18,10 +18,12 @@ class WavyCircularProgressIndicator extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<WavyCircularProgressIndicator> createState() => _WavyCircularProgressIndicatorState();
+  State<WavyCircularProgressIndicator> createState() =>
+      _WavyCircularProgressIndicatorState();
 }
 
-class _WavyCircularProgressIndicatorState extends State<WavyCircularProgressIndicator>
+class _WavyCircularProgressIndicatorState
+    extends State<WavyCircularProgressIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -104,23 +106,23 @@ class _WavyCircularPainter extends CustomPainter {
     canvas.drawCircle(center, radius, bgPaint);
 
     final actualProgress = progress ?? 0.0;
-    
+
     if (progress == null) {
       // Indeterminate mode: spin a wavy line around
       _drawWavyArc(
-        canvas, 
-        center, 
-        radius, 
-        animationValue * 2 * math.pi, 
+        canvas,
+        center,
+        radius,
+        animationValue * 2 * math.pi,
         math.pi / 1.5, // 120 degrees arc
-        wavyPaint, 
+        wavyPaint,
         animationValue,
       );
     } else {
       // Determinate mode
       final startAngle = -math.pi / 2;
       final sweepAngle = 2 * math.pi * actualProgress;
-      
+
       // Draw solid progress arc
       if (actualProgress > 0) {
         canvas.drawArc(
@@ -138,7 +140,7 @@ class _WavyCircularPainter extends CustomPainter {
         final remainingAngle = 2 * math.pi - sweepAngle;
         // Wavy line covers 45 degrees, or whatever is remaining if less
         final wavySweep = math.min(math.pi / 4, remainingAngle);
-        
+
         _drawWavyArc(
           canvas,
           center,
@@ -162,11 +164,11 @@ class _WavyCircularPainter extends CustomPainter {
     double phase,
   ) {
     if (sweepAngle <= 0) return;
-    
+
     final path = Path();
     final int segments = 30;
     final double amplitude = 3.5; // Height of the waves
-    
+
     // Calculate how many waves based on the arc length
     final double arcLength = radius * sweepAngle;
     final double wavesCount = math.max(1, (arcLength / 20.0).roundToDouble());
@@ -174,11 +176,14 @@ class _WavyCircularPainter extends CustomPainter {
     for (int i = 0; i <= segments; i++) {
       final double t = i / segments; // 0.0 to 1.0
       final double angle = startAngle + sweepAngle * t;
-      
+
       // Calculate wave offset, smoothly tapering at the ends
       final double taper = math.sin(t * math.pi); // 0 at ends, 1 in middle
-      final waveOffset = math.sin((t * wavesCount * 2 * math.pi) + (phase * 2 * math.pi)) * amplitude * taper;
-      
+      final waveOffset =
+          math.sin((t * wavesCount * 2 * math.pi) + (phase * 2 * math.pi)) *
+          amplitude *
+          taper;
+
       final double r = radius + waveOffset;
       final double x = center.dx + r * math.cos(angle);
       final double y = center.dy + r * math.sin(angle);
@@ -189,16 +194,16 @@ class _WavyCircularPainter extends CustomPainter {
         path.lineTo(x, y);
       }
     }
-    
+
     canvas.drawPath(path, paint);
   }
 
   @override
   bool shouldRepaint(covariant _WavyCircularPainter oldDelegate) {
     return oldDelegate.progress != progress ||
-           oldDelegate.animationValue != animationValue ||
-           oldDelegate.color != color ||
-           oldDelegate.wavyColor != wavyColor ||
-           oldDelegate.backgroundColor != backgroundColor;
+        oldDelegate.animationValue != animationValue ||
+        oldDelegate.color != color ||
+        oldDelegate.wavyColor != wavyColor ||
+        oldDelegate.backgroundColor != backgroundColor;
   }
 }

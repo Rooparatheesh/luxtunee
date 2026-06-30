@@ -17,7 +17,9 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor, // Very dark brown/black
+        color: Theme.of(
+          context,
+        ).scaffoldBackgroundColor, // Very dark brown/black
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: SafeArea(
@@ -33,12 +35,14 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
-                
+
                 // 2. Header
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -56,7 +60,9 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                 style: AppTypography.display(
                                   size: 32,
                                   weight: FontWeight.w800,
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -64,28 +70,45 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                 '${player.queue.length} tracks lined up.',
                                 style: AppTypography.body(
                                   size: 14,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6),
                                 ),
                               ),
                             ],
                           );
-                        }
+                        },
                       ),
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.queue_music_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
+                                Icon(
+                                  Icons.queue_music_rounded,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  size: 18,
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Quick Picks',
-                                  style: AppTypography.label(color: Theme.of(context).colorScheme.onSurface),
+                                  style: AppTypography.label(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
                                 ),
                               ],
                             ),
@@ -95,26 +118,30 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // 3. The Reorderable List
                 Expanded(
                   child: Consumer<PlayerProvider>(
                     builder: (context, player, _) {
                       final currentTrack = player.currentTrack;
                       final queue = player.queue;
-                      
+
                       return Theme(
-                        data: Theme.of(context).copyWith(
-                        ),
+                        data: Theme.of(context).copyWith(),
                         child: RawScrollbar(
                           thumbColor: AppColors.pillPaleOrange,
                           thickness: 6,
                           radius: const Radius.circular(3),
                           interactive: true,
                           child: ReorderableListView.builder(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24), // Bottom padding
+                            padding: const EdgeInsets.fromLTRB(
+                              16,
+                              0,
+                              16,
+                              24,
+                            ), // Bottom padding
                             itemCount: queue.length,
                             onReorder: (oldIndex, newIndex) {
                               if (newIndex > oldIndex) newIndex -= 1;
@@ -125,9 +152,11 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                             itemBuilder: (context, index) {
                               final track = queue[index];
                               final isPlaying = currentTrack?.id == track.id;
-                              
+
                               return GestureDetector(
-                                key: ValueKey(track.id), // Key MUST be at the top-level widget in ReorderableListView
+                                key: ValueKey(
+                                  track.id,
+                                ), // Key MUST be at the top-level widget in ReorderableListView
                                 onTap: () {
                                   if (!isPlaying) {
                                     player.playTrack(track);
@@ -135,9 +164,19 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.only(bottom: 8),
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: isPlaying ? AppColors.playerOrange.withOpacity(0.15) : Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+                                    color: isPlaying
+                                        ? AppColors.playerOrange.withOpacity(
+                                            0.15,
+                                          )
+                                        : Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.05),
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                   child: Row(
@@ -146,50 +185,89 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                         ReorderableDragStartListener(
                                           index: index,
                                           child: Padding(
-                                            padding: const EdgeInsets.only(right: 16),
-                                            child: Icon(Icons.drag_indicator_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 20),
+                                            padding: const EdgeInsets.only(
+                                              right: 16,
+                                            ),
+                                            child: Icon(
+                                              Icons.drag_indicator_rounded,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withOpacity(0.4),
+                                              size: 20,
+                                            ),
                                           ),
                                         ),
                                       ],
-                                      
+
                                       // Album Art
                                       Container(
                                         width: 48,
                                         height: 48,
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(12),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         clipBehavior: Clip.antiAlias,
-                                        child: !track.isLocal && track.albumArt.isNotEmpty
+                                        child:
+                                            !track.isLocal &&
+                                                track.albumArt.isNotEmpty
                                             ? CachedNetworkImage(
                                                 imageUrl: track.albumArt,
                                                 fit: BoxFit.cover,
                                                 fadeInDuration: Duration.zero,
                                                 fadeOutDuration: Duration.zero,
-                                                errorWidget: (context, url, error) => Icon(Icons.music_note, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24)),
+                                                errorWidget:
+                                                    (
+                                                      context,
+                                                      url,
+                                                      error,
+                                                    ) => Icon(
+                                                      Icons.music_note,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface
+                                                          .withOpacity(0.24),
+                                                    ),
                                               )
                                             : QueryArtworkWidget(
                                                 id: track.albumId ?? 0,
                                                 type: ArtworkType.ALBUM,
-                                                artworkBorder: BorderRadius.zero,
+                                                artworkBorder:
+                                                    BorderRadius.zero,
                                                 keepOldArtwork: true,
-                                                nullArtworkWidget: Icon(Icons.music_note, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24)),
+                                                nullArtworkWidget: Icon(
+                                                  Icons.music_note,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface
+                                                      .withOpacity(0.24),
+                                                ),
                                               ),
                                       ),
                                       const SizedBox(width: 16),
-                                      
+
                                       // Track Info
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               track.title,
                                               style: AppTypography.body(
                                                 size: 16,
                                                 weight: FontWeight.w600,
-                                                color: isPlaying ? AppColors.pillPaleOrange : Theme.of(context).colorScheme.onSurface,
+                                                color: isPlaying
+                                                    ? AppColors.pillPaleOrange
+                                                    : Theme.of(
+                                                        context,
+                                                      ).colorScheme.onSurface,
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -199,7 +277,10 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                               track.artist,
                                               style: AppTypography.label(
                                                 size: 13,
-                                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withOpacity(0.6),
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -207,9 +288,15 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                           ],
                                         ),
                                       ),
-                                      
+
                                       // Overflow Menu
-                                      Icon(Icons.more_vert_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                                      Icon(
+                                        Icons.more_vert_rounded,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.6),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -223,7 +310,6 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                 ),
               ],
             ),
-            
           ],
         ),
       ),

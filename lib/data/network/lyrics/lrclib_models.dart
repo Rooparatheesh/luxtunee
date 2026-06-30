@@ -10,8 +10,8 @@ class LrcLibResponse {
   final String albumName;
   final double? duration;
   final bool instrumental;
-  final String? plainLyrics;   // unsynchronised text
-  final String? syncedLyrics;  // LRC-formatted synchronised lyrics
+  final String? plainLyrics; // unsynchronised text
+  final String? syncedLyrics; // LRC-formatted synchronised lyrics
 
   const LrcLibResponse({
     required this.id,
@@ -38,7 +38,8 @@ class LrcLibResponse {
   }
 
   /// True if we have any lyrics at all.
-  bool get hasLyrics => (plainLyrics?.isNotEmpty ?? false) || (syncedLyrics?.isNotEmpty ?? false);
+  bool get hasLyrics =>
+      (plainLyrics?.isNotEmpty ?? false) || (syncedLyrics?.isNotEmpty ?? false);
 
   /// Prefer synced lyrics, fall back to plain.
   String get bestLyrics => syncedLyrics ?? plainLyrics ?? '';

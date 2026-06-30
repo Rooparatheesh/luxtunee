@@ -23,7 +23,10 @@ class ApiClient {
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     }
-    throw ApiException(response.statusCode, 'GET $url failed: ${response.reasonPhrase}');
+    throw ApiException(
+      response.statusCode,
+      'GET $url failed: ${response.reasonPhrase}',
+    );
   }
 
   /// Generic GET that returns a raw string body (useful for lyrics).
@@ -39,7 +42,10 @@ class ApiClient {
     if (response.statusCode == 200) {
       return response.body;
     }
-    throw ApiException(response.statusCode, 'GET $url failed: ${response.reasonPhrase}');
+    throw ApiException(
+      response.statusCode,
+      'GET $url failed: ${response.reasonPhrase}',
+    );
   }
 
   /// Generic POST with optional custom headers and body.
@@ -59,7 +65,10 @@ class ApiClient {
       }
       return <String, dynamic>{};
     }
-    throw ApiException(response.statusCode, 'POST $url failed: ${response.reasonPhrase}');
+    throw ApiException(
+      response.statusCode,
+      'POST $url failed: ${response.reasonPhrase}',
+    );
   }
 
   void dispose() => _client.close();

@@ -7,7 +7,9 @@ import '../../models/playlist_model.dart';
 class NeteaseApiService {
   final Map<String, String> _persistedCookies = {};
 
-  bool hasLogin() => _persistedCookies.containsKey('MUSIC_U') && _persistedCookies['MUSIC_U']!.isNotEmpty;
+  bool hasLogin() =>
+      _persistedCookies.containsKey('MUSIC_U') &&
+      _persistedCookies['MUSIC_U']!.isNotEmpty;
 
   void setPersistedCookies(Map<String, String> cookies) {
     _persistedCookies.addAll(cookies);
@@ -48,7 +50,9 @@ class NeteaseApiService {
         bodyParams = NeteaseEncryption.linuxApiEncrypt(params);
         break;
       case CryptoMode.api:
-        bodyParams = params.map((key, value) => MapEntry(key, value.toString()));
+        bodyParams = params.map(
+          (key, value) => MapEntry(key, value.toString()),
+        );
         break;
     }
 
@@ -64,7 +68,8 @@ class NeteaseApiService {
       'Connection': 'keep-alive',
       'Referer': 'https://music.163.com',
       'Host': requestUrl.host,
-      'User-Agent': 'Mozilla/5.0 (Linux; Android 14; PixelPlayer) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 14; PixelPlayer) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
     };
 
     if (usePersistedCookies) {
@@ -79,50 +84,81 @@ class NeteaseApiService {
       if (method.toUpperCase() == 'POST') {
         response = await http.post(reqUrl, headers: headers, body: bodyParams);
       } else {
-        final getUrl = reqUrl.replace(queryParameters: {
-          ...reqUrl.queryParameters,
-          ...bodyParams,
-        });
+        final getUrl = reqUrl.replace(
+          queryParameters: {...reqUrl.queryParameters, ...bodyParams},
+        );
         response = await http.get(getUrl, headers: headers);
       }
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return jsonDecode(response.body);
       } else {
-        throw Exception('HTTP ${response.statusCode}: ${response.reasonPhrase}');
+        throw Exception(
+          'HTTP ${response.statusCode}: ${response.reasonPhrase}',
+        );
       }
     } catch (e) {
       throw Exception('Netease API error: $e');
     }
   }
 
-  Future<dynamic> callWeApi(String path, Map<String, dynamic> params, {bool usePersistedCookies = true}) {
+  Future<dynamic> callWeApi(
+    String path,
+    Map<String, dynamic> params, {
+    bool usePersistedCookies = true,
+  }) {
     final p = path.startsWith('/') ? path : '/$path';
-    return request('https://music.163.com/weapi$p', params, mode: CryptoMode.weapi, method: 'POST', usePersistedCookies: usePersistedCookies);
+    return request(
+      'https://music.163.com/weapi$p',
+      params,
+      mode: CryptoMode.weapi,
+      method: 'POST',
+      usePersistedCookies: usePersistedCookies,
+    );
   }
 
-  Future<dynamic> callEApi(String path, Map<String, dynamic> params, {bool usePersistedCookies = true}) {
+  Future<dynamic> callEApi(
+    String path,
+    Map<String, dynamic> params, {
+    bool usePersistedCookies = true,
+  }) {
     final p = path.startsWith('/') ? path : '/$path';
-    return request('https://interface.music.163.com/eapi$p', params, mode: CryptoMode.eapi, method: 'POST', usePersistedCookies: usePersistedCookies);
+    return request(
+      'https://interface.music.163.com/eapi$p',
+      params,
+      mode: CryptoMode.eapi,
+      method: 'POST',
+      usePersistedCookies: usePersistedCookies,
+    );
   }
 
-  Future<List<TrackModel>> searchSongs(String keyword, {int limit = 30, int offset = 0}) async {
+  Future<List<TrackModel>> searchSongs(
+    String keyword, {
+    int limit = 30,
+    int offset = 0,
+  }) async {
     final params = {
       's': keyword,
       'type': '1',
       'limit': limit,
       'offset': offset,
-      'total': 'true'
+      'total': 'true',
     };
-    
-    final response = await request('https://music.163.com/weapi/cloudsearch/get/web', params, mode: CryptoMode.weapi);
-    if (response['code'] == 200 && response['result'] != null && response['result']['songs'] != null) {
+
+    final response = await request(
+      'https://music.163.com/weapi/cloudsearch/get/web',
+      params,
+      mode: CryptoMode.weapi,
+    );
+    if (response['code'] == 200 &&
+        response['result'] != null &&
+        response['result']['songs'] != null) {
       final songs = List.from(response['result']['songs']);
       return songs.map((s) {
         final al = s['al'] ?? {};
         final ar = s['ar'] != null ? List.from(s['ar']) : [];
         final artistNames = ar.map((a) => a['name']).join(', ');
-        
+
         return TrackModel(
           id: s['id'].toString(),
           title: s['name'] ?? 'Unknown',
@@ -138,30 +174,45 @@ class NeteaseApiService {
     return [];
   }
 
-  Future<String> getSongDownloadUrl(String songId, {String level = 'exhigh'}) async {
-    final encodeType = (level == 'lossless' || level == 'jyeffect') ? 'flac' : 'mp3';
+  Future<String> getSongDownloadUrl(
+    String songId, {
+    String level = 'exhigh',
+  }) async {
+    final encodeType = (level == 'lossless' || level == 'jyeffect')
+        ? 'flac'
+        : 'mp3';
     final params = {
       'ids': '[$songId]',
       'level': level,
-      'encodeType': encodeType
+      'encodeType': encodeType,
     };
-    
+
     final response = await callEApi('/song/enhance/player/url/v1', params);
-    if (response['code'] == 200 && response['data'] != null && response['data'].isNotEmpty) {
+    if (response['code'] == 200 &&
+        response['data'] != null &&
+        response['data'].isNotEmpty) {
       return response['data'][0]['url'] ?? '';
     }
     return '';
   }
 
-  Future<List<PlaylistModel>> getUserPlaylists(String userId, {int offset = 0, int limit = 50}) async {
+  Future<List<PlaylistModel>> getUserPlaylists(
+    String userId, {
+    int offset = 0,
+    int limit = 50,
+  }) async {
     final params = {
       'uid': userId,
       'offset': offset,
       'limit': limit,
-      'includeVideo': 'true'
+      'includeVideo': 'true',
     };
-    
-    final response = await request('https://music.163.com/weapi/user/playlist', params, mode: CryptoMode.weapi);
+
+    final response = await request(
+      'https://music.163.com/weapi/user/playlist',
+      params,
+      mode: CryptoMode.weapi,
+    );
     if (response['code'] == 200 && response['playlist'] != null) {
       final playlists = List.from(response['playlist']);
       return playlists.map((p) {

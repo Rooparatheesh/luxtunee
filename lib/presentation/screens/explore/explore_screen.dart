@@ -49,7 +49,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            
+
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -62,11 +62,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
 
-
-            
             // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -78,15 +76,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    const Icon(Icons.search_rounded, color: AppColors.textMuted),
+                    const Icon(
+                      Icons.search_rounded,
+                      color: AppColors.textMuted,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
                         controller: _searchController,
-                        style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface),
+                        style: AppTypography.body(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Search for any song or language...',
-                          hintStyle: AppTypography.body(color: AppColors.textMuted),
+                          hintStyle: AppTypography.body(
+                            color: AppColors.textMuted,
+                          ),
                           border: InputBorder.none,
                         ),
                         onSubmitted: (value) {
@@ -103,9 +108,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Language/Genre Pills
             SizedBox(
               height: 36,
@@ -117,8 +122,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     itemCount: _categories.length,
                     itemBuilder: (context, index) {
                       final category = _categories[index];
-                      final isSelected = explore.currentCategory == category['name'];
-                      
+                      final isSelected =
+                          explore.currentCategory == category['name'];
+
                       return GestureDetector(
                         onTap: () {
                           _searchController.clear();
@@ -131,47 +137,64 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           margin: const EdgeInsets.only(right: 12),
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.libraryPillActiveBg : AppColors.libraryPillBg,
+                            color: isSelected
+                                ? AppColors.libraryPillActiveBg
+                                : AppColors.libraryPillBg,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           alignment: Alignment.center,
                           child: Text(
                             category['name']!,
                             style: AppTypography.label(
-                              color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                              weight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.5),
+                              weight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
                             ),
                           ),
                         ),
                       );
                     },
                   );
-                }
+                },
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Online Track List
             Expanded(
               child: Consumer<ExploreProvider>(
                 builder: (context, explore, child) {
                   if (explore.isLoading) {
                     return Center(
-                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     );
                   }
-                  
+
                   if (explore.error != null) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.textMuted),
+                          Icon(
+                            Icons.wifi_off_rounded,
+                            size: 48,
+                            color: AppColors.textMuted,
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             explore.error!,
-                            style: AppTypography.body(color: Theme.of(context).colorScheme.onSurface, weight: FontWeight.w600),
+                            style: AppTypography.body(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              weight: FontWeight.w600,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
@@ -185,7 +208,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
                     );
                   }
-                  
+
                   if (explore.trendingTracks.isEmpty) {
                     return Center(
                       child: Text(
@@ -194,17 +217,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
                     );
                   }
-                  
+
                   // Connect to PlayerProvider to check current playing track
                   return Consumer<PlayerProvider>(
                     builder: (context, player, child) {
                       return ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 100), 
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
                         itemCount: explore.trendingTracks.length,
                         itemBuilder: (context, index) {
                           final track = explore.trendingTracks[index];
                           final isPlaying = player.currentTrack?.id == track.id;
-                          
+
                           return GestureDetector(
                             onTap: () {
                               player.playTrack(
@@ -222,7 +245,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                     width: 56,
                                     height: 56,
                                     decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.surface,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.surface,
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     clipBehavior: Clip.antiAlias,
@@ -232,24 +257,40 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                       fadeInDuration: Duration.zero,
                                       fadeOutDuration: Duration.zero,
                                       placeholder: (context, url) => Center(
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.primary),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                        ),
                                       ),
-                                      errorWidget: (context, url, error) => const Icon(Icons.music_note_rounded, color: AppColors.textMuted),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(
+                                            Icons.music_note_rounded,
+                                            color: AppColors.textMuted,
+                                          ),
                                     ),
                                   ),
                                   const SizedBox(width: 16),
-                                  
+
                                   // Track Details
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           track.title,
                                           style: AppTypography.body(
                                             size: 15,
                                             weight: FontWeight.w600,
-                                            color: isPlaying ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
+                                            color: isPlaying
+                                                ? Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary
+                                                : Theme.of(
+                                                    context,
+                                                  ).colorScheme.onSurface,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -267,11 +308,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                       ],
                                     ),
                                   ),
-                                  
+
                                   // Play Icon
                                   Icon(
-                                    isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded, 
-                                    color: isPlaying ? Theme.of(context).colorScheme.primary : AppColors.textMuted,
+                                    isPlaying
+                                        ? Icons.pause_circle_filled_rounded
+                                        : Icons.play_circle_fill_rounded,
+                                    color: isPlaying
+                                        ? Theme.of(context).colorScheme.primary
+                                        : AppColors.textMuted,
                                     size: 32,
                                   ),
                                 ],
@@ -280,7 +325,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           );
                         },
                       );
-                    }
+                    },
                   );
                 },
               ),

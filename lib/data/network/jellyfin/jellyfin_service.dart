@@ -11,7 +11,8 @@ class JellyfinApiService {
   static const String _deviceName = "Flutter";
   static const String _deviceId = "PixelPlayer-Flutter";
 
-  JellyfinApiService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
+  JellyfinApiService({ApiClient? apiClient})
+    : _apiClient = apiClient ?? ApiClient();
 
   void setCredentials(JellyfinCredentials credentials) {
     _credentials = credentials;
@@ -27,21 +28,25 @@ class JellyfinApiService {
 
   String _buildAuthorizationHeader() {
     final cred = _credentials;
-    final tokenPart = (cred?.accessToken != null && cred!.accessToken!.isNotEmpty) 
-        ? ', Token="${cred.accessToken}"' 
+    final tokenPart =
+        (cred?.accessToken != null && cred!.accessToken!.isNotEmpty)
+        ? ', Token="${cred.accessToken}"'
         : '';
     return 'MediaBrowser Client="$_clientName", Device="$_deviceName", DeviceId="$_deviceId", Version="$_clientVersion"$tokenPart';
   }
 
-  Future<bool> authenticateByName(String serverUrl, String username, String password) async {
+  Future<bool> authenticateByName(
+    String serverUrl,
+    String username,
+    String password,
+  ) async {
     try {
-      final url = '${serverUrl.replaceAll(RegExp(r'/$'), '')}/Users/AuthenticateByName';
-      final body = jsonEncode({
-        'Username': username,
-        'Pw': password,
-      });
+      final url =
+          '${serverUrl.replaceAll(RegExp(r'/$'), '')}/Users/AuthenticateByName';
+      final body = jsonEncode({'Username': username, 'Pw': password});
 
-      final authHeader = 'MediaBrowser Client="$_clientName", Device="$_deviceName", DeviceId="$_deviceId", Version="$_clientVersion"';
+      final authHeader =
+          'MediaBrowser Client="$_clientName", Device="$_deviceName", DeviceId="$_deviceId", Version="$_clientVersion"';
 
       final response = await _apiClient.post(
         url,
@@ -111,9 +116,13 @@ class JellyfinApiService {
     }
   }
 
-  Future<List<JellyfinSong>> getMusicItems({int startIndex = 0, int limit = 500, String? parentId}) async {
+  Future<List<JellyfinSong>> getMusicItems({
+    int startIndex = 0,
+    int limit = 500,
+    String? parentId,
+  }) async {
     if (_credentials == null) return [];
-    
+
     final params = {
       'IncludeItemTypes': 'Audio',
       'Recursive': 'true',
@@ -127,9 +136,14 @@ class JellyfinApiService {
       params['ParentId'] = parentId;
     }
 
-    final response = await _request('/Users/${_credentials!.userId}/Items', params);
+    final response = await _request(
+      '/Users/${_credentials!.userId}/Items',
+      params,
+    );
     if (response['Items'] != null) {
-      return List.from(response['Items']).map((e) => JellyfinSong.fromJson(e)).toList();
+      return List.from(
+        response['Items'],
+      ).map((e) => JellyfinSong.fromJson(e)).toList();
     }
     return [];
   }
@@ -144,9 +158,14 @@ class JellyfinApiService {
       'MediaTypes': 'Audio',
     };
 
-    final response = await _request('/Users/${_credentials!.userId}/Items', params);
+    final response = await _request(
+      '/Users/${_credentials!.userId}/Items',
+      params,
+    );
     if (response['Items'] != null) {
-      return List.from(response['Items']).map((e) => JellyfinPlaylist.fromJson(e)).toList();
+      return List.from(
+        response['Items'],
+      ).map((e) => JellyfinPlaylist.fromJson(e)).toList();
     }
     return [];
   }
@@ -161,7 +180,9 @@ class JellyfinApiService {
 
     final response = await _request('/Playlists/$playlistId/Items', params);
     if (response['Items'] != null) {
-      return List.from(response['Items']).map((e) => JellyfinSong.fromJson(e)).toList();
+      return List.from(
+        response['Items'],
+      ).map((e) => JellyfinSong.fromJson(e)).toList();
     }
     return [];
   }
@@ -177,9 +198,14 @@ class JellyfinApiService {
       'Limit': limit.toString(),
     };
 
-    final response = await _request('/Users/${_credentials!.userId}/Items', params);
+    final response = await _request(
+      '/Users/${_credentials!.userId}/Items',
+      params,
+    );
     if (response['Items'] != null) {
-      return List.from(response['Items']).map((e) => JellyfinSong.fromJson(e)).toList();
+      return List.from(
+        response['Items'],
+      ).map((e) => JellyfinSong.fromJson(e)).toList();
     }
     return [];
   }
@@ -188,7 +214,9 @@ class JellyfinApiService {
     if (_credentials == null || !_credentials!.hasToken) return '';
     final cred = _credentials!;
 
-    final urlBuilder = Uri.parse('${cred.normalizedServerUrl}/Audio/$itemId/universal');
+    final urlBuilder = Uri.parse(
+      '${cred.normalizedServerUrl}/Audio/$itemId/universal',
+    );
     final queryParams = {
       'UserId': cred.userId!,
       'DeviceId': _deviceId,
@@ -204,7 +232,11 @@ class JellyfinApiService {
     return urlBuilder.replace(queryParameters: queryParams).toString();
   }
 
-  String getImageUrl(String itemId, {String imageType = 'Primary', int maxWidth = 500}) {
+  String getImageUrl(
+    String itemId, {
+    String imageType = 'Primary',
+    int maxWidth = 500,
+  }) {
     if (_credentials == null) return '';
     return '${_credentials!.normalizedServerUrl}/Items/$itemId/Images/$imageType?maxWidth=$maxWidth&quality=90';
   }

@@ -15,10 +15,7 @@ class PlaylistsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'Playlists',
-          style: AppTypography.heading(size: 24),
-        ),
+        title: Text('Playlists', style: AppTypography.heading(size: 24)),
         centerTitle: false,
       ),
       body: Consumer<PlaylistProvider>(
@@ -50,18 +47,30 @@ class PlaylistsScreen extends StatelessWidget {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(Icons.queue_music, color: Theme.of(context).colorScheme.primary),
+                        child: Icon(
+                          Icons.queue_music,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
-                      title: Text(playlist.title, style: AppTypography.body(weight: FontWeight.w600)),
-                      subtitle: Text('${playlist.tracks.length} tracks', style: AppTypography.label(color: AppColors.textMuted)),
+                      title: Text(
+                        playlist.title,
+                        style: AppTypography.body(weight: FontWeight.w600),
+                      ),
+                      subtitle: Text(
+                        '${playlist.tracks.length} tracks',
+                        style: AppTypography.label(color: AppColors.textMuted),
+                      ),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PlaylistDetailScreen(playlist: playlist),
+                            builder: (context) =>
+                                PlaylistDetailScreen(playlist: playlist),
                           ),
                         );
                       },
@@ -95,9 +104,7 @@ class PlaylistsScreen extends StatelessWidget {
           title: const Text('New Playlist'),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(
-              hintText: 'Playlist Name',
-            ),
+            decoration: const InputDecoration(hintText: 'Playlist Name'),
             autofocus: true,
           ),
           actions: [

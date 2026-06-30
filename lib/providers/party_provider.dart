@@ -8,12 +8,12 @@ import 'dart:async';
 
 class PartyProvider extends ChangeNotifier {
   final DatabaseReference _db = FirebaseDatabase.instance.ref();
-  
+
   String? _myDeviceId;
   String? _currentRoomCode;
   bool _isHost = false; // Kept for legacy/cleanup logic
   bool _isSyncing = false; // Flag to prevent echo loops
-  
+
   StreamSubscription<DatabaseEvent>? _roomPlaybackSubscription;
   PlayerProvider? _playerProvider;
   StreamSubscription? _playerPosSubscription;
@@ -35,11 +35,12 @@ class PartyProvider extends ChangeNotifier {
 
   void attachPlayer(PlayerProvider player) {
     _playerProvider = player;
-    
+
     // Listen to local player and broadcast changes to the room
     _playerPosSubscription = player.positionStream.listen((pos) {
-      if (_currentRoomCode == null || player.currentTrack == null || _isSyncing) return;
-      
+      if (_currentRoomCode == null || player.currentTrack == null || _isSyncing)
+        return;
+
       final now = DateTime.now().millisecondsSinceEpoch;
       final currentPosMs = pos.inMilliseconds;
       final isPlaying = player.isPlaying;
@@ -57,7 +58,8 @@ class PartyProvider extends ChangeNotifier {
       }
       // 3. User seeked
       // Since position naturally increases, a large unexpected jump means seek.
-      else if ((currentPosMs - _lastPosMs).abs() > 1000 && (now - _lastSyncTimeMs) > 500) {
+      else if ((currentPosMs - _lastPosMs).abs() > 1000 &&
+          (now - _lastSyncTimeMs) > 500) {
         shouldSync = true;
       }
       // 4. Heartbeat (every 5 seconds)
@@ -86,28 +88,31 @@ class PartyProvider extends ChangeNotifier {
   Future<String?> startParty() async {
     try {
       if (_myDeviceId == null) await initialize();
-      
+
       _currentRoomCode = PairingUtils.generatePairingCode();
       _isHost = true;
-      
-      await _db.child('rooms/$_currentRoomCode').set({
-        'host_device_id': _myDeviceId,
-        'created_at': DateTime.now().millisecondsSinceEpoch,
-      }).timeout(const Duration(seconds: 10));
-      
+
+      await _db
+          .child('rooms/$_currentRoomCode')
+          .set({
+            'host_device_id': _myDeviceId,
+            'created_at': DateTime.now().millisecondsSinceEpoch,
+          })
+          .timeout(const Duration(seconds: 10));
+
       // Reset throttling state
       _lastSyncTimeMs = 0;
       _lastPosMs = 0;
 
       // Make sure we have the initial state published
-    if (_playerProvider?.currentTrack != null) {
-       updatePlaybackState(
+      if (_playerProvider?.currentTrack != null) {
+        updatePlaybackState(
           track: _playerProvider!.currentTrack!,
           isPlaying: _playerProvider!.isPlaying,
           positionMs: _playerProvider!.position.inMilliseconds,
-       );
-    }
-      
+        );
+      }
+
       _startListeningToRoom();
       notifyListeners();
       return _currentRoomCode;
@@ -124,11 +129,14 @@ class PartyProvider extends ChangeNotifier {
     try {
       if (_myDeviceId == null) await initialize();
 
-      final snapshot = await _db.child('rooms/$code').get().timeout(const Duration(seconds: 10));
+      final snapshot = await _db
+          .child('rooms/$code')
+          .get()
+          .timeout(const Duration(seconds: 10));
       if (snapshot.exists) {
         _currentRoomCode = code;
         _isHost = false;
-        
+
         _startListeningToRoom();
         notifyListeners();
         return true;
@@ -144,29 +152,36 @@ class PartyProvider extends ChangeNotifier {
     _roomPlaybackSubscription?.cancel();
     if (_currentRoomCode == null) return;
 
-    _roomPlaybackSubscription = _db.child('rooms/$_currentRoomCode').onValue.listen((event) {
-      if (event.snapshot.value != null) {
-        final roomData = Map<String, dynamic>.from(event.snapshot.value as Map);
-        if (roomData.containsKey('playback_state')) {
-          final state = Map<String, dynamic>.from(roomData['playback_state'] as Map);
-          if (_playerProvider != null && state['track_url'] != null) {
-             _syncRemotePlayer(state);
+    _roomPlaybackSubscription = _db
+        .child('rooms/$_currentRoomCode')
+        .onValue
+        .listen((event) {
+          if (event.snapshot.value != null) {
+            final roomData = Map<String, dynamic>.from(
+              event.snapshot.value as Map,
+            );
+            if (roomData.containsKey('playback_state')) {
+              final state = Map<String, dynamic>.from(
+                roomData['playback_state'] as Map,
+              );
+              if (_playerProvider != null && state['track_url'] != null) {
+                _syncRemotePlayer(state);
+              }
+            }
+          } else {
+            // Room was deleted
+            leaveParty();
           }
-        }
-      } else {
-        // Room was deleted
-        leaveParty();
-      }
-    });
+        });
   }
 
   Future<void> _syncRemotePlayer(Map<String, dynamic> state) async {
     if (_playerProvider == null) return;
-    
+
     final updatedBy = state['updated_by'];
     // Ignore updates that we just sent ourselves
     if (updatedBy == _myDeviceId) return;
-    
+
     _isSyncing = true; // Block local broadcasts while we sync
 
     try {
@@ -175,16 +190,18 @@ class PartyProvider extends ChangeNotifier {
       final positionMs = state['position_ms'];
       final updatedAt = state['updated_at'];
       final trackSource = state['track_source'] ?? 'online';
-      
+
       // Ignore device clocks for latency because device clocks can be skewed.
       // Instead, apply a small fixed offset (e.g. 300ms) to compensate for network delay.
       final adjustedPosition = positionMs + (isPlaying ? 300 : 0);
-      
+
       // 1. Handle Track Switch
       if (_playerProvider!.currentTrack?.id != trackId) {
         // Find track in local library/explore list
-        TrackModel? track = _playerProvider!.tracks.where((t) => t.id == trackId).firstOrNull;
-        
+        TrackModel? track = _playerProvider!.tracks
+            .where((t) => t.id == trackId)
+            .firstOrNull;
+
         // If the track isn't local, construct it from the broadcasted metadata
         if (track == null && state['track_title'] != null) {
           track = TrackModel(
@@ -195,27 +212,32 @@ class PartyProvider extends ChangeNotifier {
             duration: Duration(milliseconds: state['track_duration_ms'] ?? 0),
             // If it's youtube, we CANNOT use the broadcasted URL because it's IP-locked.
             // Leave it empty so it can be dynamically resolved.
-            audioUrl: trackSource == 'youtube' ? '' : (state['track_url'] ?? ''),
+            audioUrl: trackSource == 'youtube'
+                ? ''
+                : (state['track_url'] ?? ''),
             albumArt: state['track_album_art'] ?? '',
             source: trackSource,
           );
         }
 
         if (track != null) {
-           if (trackSource == 'youtube') {
-             await _playerProvider!.playTrack(track, urlResolver: (t) => _youtubeService.getStreamUrl(t.id));
-           } else {
-             await _playerProvider!.playTrack(track);
-           }
+          if (trackSource == 'youtube') {
+            await _playerProvider!.playTrack(
+              track,
+              urlResolver: (t) => _youtubeService.getStreamUrl(t.id),
+            );
+          } else {
+            await _playerProvider!.playTrack(track);
+          }
         }
       }
-      
+
       // 2. Handle Position Sync (Tolerate up to 1000ms drift to prevent stuttering)
       final currentPosMs = _playerProvider!.position.inMilliseconds;
       if ((currentPosMs - adjustedPosition).abs() > 1000) {
         await _playerProvider!.seek(Duration(milliseconds: adjustedPosition));
       }
-      
+
       // 3. Handle Play/Pause
       if (isPlaying && !_playerProvider!.isPlaying) {
         await _playerProvider!.togglePlayPause();
@@ -237,12 +259,12 @@ class PartyProvider extends ChangeNotifier {
       // Delete the room so guests know it's over
       await _db.child('rooms/$_currentRoomCode').remove();
     }
-    
+
     _roomPlaybackSubscription?.cancel();
     _currentRoomCode = null;
     _isHost = false;
     _isSyncing = false;
-    
+
     notifyListeners();
   }
 
@@ -279,4 +301,3 @@ class PartyProvider extends ChangeNotifier {
     super.dispose();
   }
 }
-

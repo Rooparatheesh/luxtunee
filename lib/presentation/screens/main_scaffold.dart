@@ -52,8 +52,12 @@ class _MainScaffoldState extends State<MainScaffold> {
         actions: [
           IconButton(
             icon: Icon(
-              partyProvider.currentRoomCode != null ? Icons.podcasts_rounded : Icons.cell_tower_rounded,
-              color: partyProvider.currentRoomCode != null ? Colors.greenAccent : Theme.of(context).colorScheme.primary,
+              partyProvider.currentRoomCode != null
+                  ? Icons.podcasts_rounded
+                  : Icons.cell_tower_rounded,
+              color: partyProvider.currentRoomCode != null
+                  ? Colors.greenAccent
+                  : Theme.of(context).colorScheme.primary,
             ),
             onPressed: () => _showPartyDialog(context),
           ),
@@ -64,14 +68,9 @@ class _MainScaffoldState extends State<MainScaffold> {
         children: [
           // Main content
           _pages[_currentIndex],
-          
+
           // Mini Player overlay sitting just above the bottom nav
-          const Positioned(
-            left: 16,
-            right: 16,
-            bottom: 0, 
-            child: MiniPlayer(),
-          ),
+          const Positioned(left: 16, right: 16, bottom: 0, child: MiniPlayer()),
         ],
       ),
       bottomNavigationBar: Container(
@@ -119,7 +118,11 @@ class _MainScaffoldState extends State<MainScaffold> {
     );
   }
 
-  BottomNavigationBarItem _buildNavItem(IconData icon, String label, int index) {
+  BottomNavigationBarItem _buildNavItem(
+    IconData icon,
+    String label,
+    int index,
+  ) {
     final isSelected = _currentIndex == index;
     return BottomNavigationBarItem(
       icon: Container(
@@ -145,10 +148,16 @@ class _MainScaffoldState extends State<MainScaffold> {
           builder: (context, provider, child) {
             return AlertDialog(
               backgroundColor: Theme.of(context).cardColor,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: Text(
                 'Party Mode',
-                style: AppTypography.display(size: 20, weight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface),
+                style: AppTypography.display(
+                  size: 20,
+                  weight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -161,7 +170,11 @@ class _MainScaffoldState extends State<MainScaffold> {
                     const SizedBox(height: 8),
                     Text(
                       provider.currentRoomCode!,
-                      style: AppTypography.display(size: 32, weight: FontWeight.w700, color: Theme.of(context).colorScheme.primary),
+                      style: AppTypography.display(
+                        size: 32,
+                        weight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
@@ -172,9 +185,14 @@ class _MainScaffoldState extends State<MainScaffold> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent,
                         minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Text('Leave Party', style: TextStyle(color: Colors.white)),
+                      child: const Text(
+                        'Leave Party',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ] else ...[
                     ElevatedButton(
@@ -183,11 +201,19 @@ class _MainScaffoldState extends State<MainScaffold> {
                         if (context.mounted) {
                           if (code != null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Party Room Created! Share your code.')),
+                              const SnackBar(
+                                content: Text(
+                                  'Party Room Created! Share your code.',
+                                ),
+                              ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Failed to create room. Please check your network.')),
+                              const SnackBar(
+                                content: Text(
+                                  'Failed to create room. Please check your network.',
+                                ),
+                              ),
                             );
                           }
                         }
@@ -195,12 +221,22 @@ class _MainScaffoldState extends State<MainScaffold> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: Text('Start a Party', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+                      child: Text(
+                        'Start a Party',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    Text('OR', style: AppTypography.label(color: AppColors.textMuted)),
+                    Text(
+                      'OR',
+                      style: AppTypography.label(color: AppColors.textMuted),
+                    ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: joinCodeController,
@@ -224,11 +260,17 @@ class _MainScaffoldState extends State<MainScaffold> {
                           if (context.mounted) {
                             if (success) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Successfully joined room $code!')),
+                                SnackBar(
+                                  content: Text(
+                                    'Successfully joined room $code!',
+                                  ),
+                                ),
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Room not found.')),
+                                const SnackBar(
+                                  content: Text('Room not found.'),
+                                ),
                               );
                             }
                           }
@@ -237,9 +279,16 @@ class _MainScaffoldState extends State<MainScaffold> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.libraryPillBg,
                         minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: Text('Join Party', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                      child: Text(
+                        'Join Party',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                     ),
                   ],
                 ],

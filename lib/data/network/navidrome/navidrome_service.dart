@@ -12,7 +12,8 @@ class NavidromeApiService {
   static const String _apiVersion = '1.16.1';
   static const String _defaultFormat = 'json';
 
-  NavidromeApiService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
+  NavidromeApiService({ApiClient? apiClient})
+    : _apiClient = apiClient ?? ApiClient();
 
   void setCredentials(NavidromeCredentials credentials) {
     _credentials = credentials;
@@ -30,10 +31,7 @@ class NavidromeApiService {
     final salt = const Uuid().v4().substring(0, 6);
     final bytes = utf8.encode(password + salt);
     final token = md5.convert(bytes).toString();
-    return {
-      'token': token,
-      'salt': salt,
-    };
+    return {'token': token, 'salt': salt};
   }
 
   String _buildApiUrl(String endpoint, [Map<String, String>? extraParams]) {
@@ -45,7 +43,7 @@ class NavidromeApiService {
     final authParams = _generateAuthParams(creds.password);
 
     final baseUrl = '${creds.normalizedServerUrl}/rest/$endpoint.view';
-    
+
     final queryParams = <String, String>{
       'u': creds.username,
       't': authParams['token']!,
@@ -65,7 +63,10 @@ class NavidromeApiService {
 
   String getCoverArtUrl(String coverArtId, {int size = 500}) {
     if (_credentials == null) return '';
-    return _buildApiUrl('getCoverArt', {'id': coverArtId, 'size': size.toString()});
+    return _buildApiUrl('getCoverArt', {
+      'id': coverArtId,
+      'size': size.toString(),
+    });
   }
 
   String getStreamUrl(String songId, {int maxBitRate = 0, String? format}) {
@@ -76,11 +77,14 @@ class NavidromeApiService {
     return _buildApiUrl('stream', params);
   }
 
-  Future<dynamic> _request(String endpoint, [Map<String, String>? params]) async {
+  Future<dynamic> _request(
+    String endpoint, [
+    Map<String, String>? params,
+  ]) async {
     final url = _buildApiUrl(endpoint, params);
     try {
       final response = await _apiClient.get(url);
-      
+
       if (response.containsKey('subsonic-response')) {
         final subsonicResponse = response['subsonic-response'];
         if (subsonicResponse['status'] == 'ok') {
@@ -125,14 +129,17 @@ class NavidromeApiService {
     return [];
   }
 
-  Future<List<NavidromeSong>> searchSongs(String query, {int count = 30}) async {
+  Future<List<NavidromeSong>> searchSongs(
+    String query, {
+    int count = 30,
+  }) async {
     final response = await _request('search3', {
       'query': query,
       'artistCount': '0',
       'albumCount': '0',
-      'songCount': count.toString()
+      'songCount': count.toString(),
     });
-    
+
     final searchResult = response['searchResult3'];
     if (searchResult != null && searchResult['song'] != null) {
       final songs = List.from(searchResult['song']);
@@ -141,10 +148,13 @@ class NavidromeApiService {
     return [];
   }
 
-  Future<List<NavidromeSong>> getAlbumList({String type = 'newest', int size = 50}) async {
+  Future<List<NavidromeSong>> getAlbumList({
+    String type = 'newest',
+    int size = 50,
+  }) async {
     final response = await _request('getAlbumList2', {
       'type': type,
-      'size': size.toString()
+      'size': size.toString(),
     });
     // This returns albums, we could parse them similarly
     // For now we will return NavidromeSong from albums if needed or build an album list

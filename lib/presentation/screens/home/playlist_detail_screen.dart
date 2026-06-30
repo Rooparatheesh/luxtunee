@@ -5,6 +5,7 @@ import 'package:on_audio_query/on_audio_query.dart' hide PlaylistModel;
 import '../../../data/models/playlist_model.dart';
 import '../../../providers/playlist_provider.dart';
 import '../../../providers/player_provider.dart';
+import '../../../providers/explore_provider.dart';
 import '../../../theme/app_theme.dart';
 
 class PlaylistDetailScreen extends StatelessWidget {
@@ -62,26 +63,36 @@ class PlaylistDetailScreen extends StatelessWidget {
                 onPressed: () => _showRenameDialog(context, provider),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.redAccent,
+                ),
                 onPressed: () {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Delete Playlist?'),
-                      content: const Text('Are you sure you want to delete this playlist? The songs will remain in your library.'),
+                      content: const Text(
+                        'Are you sure you want to delete this playlist? The songs will remain in your library.',
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: const Text('Cancel'),
                         ),
                         ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                          ),
                           onPressed: () {
                             provider.deletePlaylist(currentPlaylist.id);
                             Navigator.pop(context);
                             Navigator.pop(context); // Go back to Library
                           },
-                          child: const Text('Delete', style: TextStyle(color: Colors.white)),
+                          child: const Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ],
                     ),
@@ -112,7 +123,10 @@ class PlaylistDetailScreen extends StatelessWidget {
                           id: track.albumId ?? 0,
                           type: ArtworkType.ALBUM,
                           artworkBorder: BorderRadius.circular(8),
-                          nullArtworkWidget: const Icon(Icons.music_note_rounded, color: AppColors.textMuted),
+                          nullArtworkWidget: const Icon(
+                            Icons.music_note_rounded,
+                            color: AppColors.textMuted,
+                          ),
                         ),
                       ),
                       title: Text(
@@ -122,7 +136,9 @@ class PlaylistDetailScreen extends StatelessWidget {
                         style: AppTypography.body(
                           size: 15,
                           weight: FontWeight.w600,
-                          color: isPlaying ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
+                          color: isPlaying
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       subtitle: Text(
@@ -132,10 +148,16 @@ class PlaylistDetailScreen extends StatelessWidget {
                         style: AppTypography.label(color: AppColors.textMuted),
                       ),
                       trailing: PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert_rounded, color: AppColors.textMuted),
+                        icon: const Icon(
+                          Icons.more_vert_rounded,
+                          color: AppColors.textMuted,
+                        ),
                         onSelected: (value) {
                           if (value == 'remove') {
-                            provider.removeTrackFromPlaylist(currentPlaylist.id, track.id);
+                            provider.removeTrackFromPlaylist(
+                              currentPlaylist.id,
+                              track.id,
+                            );
                           }
                         },
                         itemBuilder: (context) => [
@@ -143,9 +165,18 @@ class PlaylistDetailScreen extends StatelessWidget {
                             value: 'remove',
                             child: Row(
                               children: [
-                                const Icon(Icons.remove_circle_outline, color: Colors.redAccent, size: 20),
+                                const Icon(
+                                  Icons.remove_circle_outline,
+                                  color: Colors.redAccent,
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 8),
-                                Text('Remove from Playlist', style: AppTypography.body(color: Colors.redAccent)),
+                                Text(
+                                  'Remove from Playlist',
+                                  style: AppTypography.body(
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -154,6 +185,9 @@ class PlaylistDetailScreen extends StatelessWidget {
                       onTap: () {
                         player.playTrack(
                           track,
+                          urlResolver: track.source == 'youtube'
+                              ? context.read<ExploreProvider>().getAudioUrl
+                              : null,
                           newQueue: currentPlaylist.tracks,
                         );
                       },
@@ -165,11 +199,24 @@ class PlaylistDetailScreen extends StatelessWidget {
                   onPressed: () {
                     context.read<PlayerProvider>().playTrack(
                       currentPlaylist.tracks.first,
+                      urlResolver:
+                          currentPlaylist.tracks.first.source == 'youtube'
+                          ? context.read<ExploreProvider>().getAudioUrl
+                          : null,
                       newQueue: currentPlaylist.tracks,
                     );
                   },
-                  icon: const Icon(Icons.play_arrow_rounded, color: Colors.white),
-                  label: const Text('Play All', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  icon: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    'Play All',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   backgroundColor: Theme.of(context).colorScheme.primary,
                 )
               : null,

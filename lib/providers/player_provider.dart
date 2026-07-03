@@ -1,5 +1,7 @@
 // lib/providers/player_provider.dart
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import '../data/models/track_model.dart';
@@ -24,6 +26,23 @@ class PlayerProvider extends ChangeNotifier {
   Stream<Duration> get positionStream => _player.positionStream;
   Stream<Duration?> get durationStream => _player.durationStream;
 
+  static const _favoritesKey = 'favorite_tracks';
+
+  Future<void> _loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favList = prefs.getStringList(_favoritesKey);
+    if (favList != null) {
+      favoriteTracks = favList.map((str) => TrackModel.fromJson(json.decode(str))).toList();
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favList = favoriteTracks.map((t) => json.encode(t.toJson())).toList();
+    await prefs.setStringList(_favoritesKey, favList);
+  }
+
   void toggleFavorite(TrackModel track) {
     final index = favoriteTracks.indexWhere((t) => t.id == track.id);
     if (index >= 0) {
@@ -31,6 +50,7 @@ class PlayerProvider extends ChangeNotifier {
     } else {
       favoriteTracks.insert(0, track.copyWith(isFavorite: true));
     }
+    _saveFavorites();
     notifyListeners();
   }
 
@@ -39,6 +59,7 @@ class PlayerProvider extends ChangeNotifier {
   }
 
   PlayerProvider() {
+    _loadFavorites();
     _player.positionStream.listen((pos) {
       position = pos;
     });

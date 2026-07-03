@@ -73,4 +73,36 @@ class TrackModel {
     final s = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '$m:$s';
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'artist': artist,
+    'album': album,
+    'albumArt': albumArt,
+    'durationMs': duration.inMilliseconds,
+    'audioUrl': audioUrl,
+    'uri': uri,
+    'albumId': albumId,
+    'isFavorite': isFavorite,
+    'lyrics': lyrics,
+    'source': source,
+    'syncedLyrics': syncedLyrics,
+  };
+
+  factory TrackModel.fromJson(Map<String, dynamic> json) => TrackModel(
+    id: json['id'] as String? ?? '',
+    title: json['title'] as String? ?? 'Unknown',
+    artist: json['artist'] as String? ?? 'Unknown Artist',
+    album: json['album'] as String? ?? 'Unknown Album',
+    albumArt: json['albumArt'] as String? ?? '',
+    duration: Duration(milliseconds: json['durationMs'] as int? ?? 0),
+    audioUrl: json['audioUrl'] as String? ?? '',
+    uri: json['uri'] as String? ?? '',
+    albumId: json['albumId'] as int?,
+    isFavorite: json['isFavorite'] as bool? ?? false,
+    lyrics: json['lyrics'] as String? ?? '',
+    source: json['source'] as String? ?? 'local',
+    syncedLyrics: json['syncedLyrics'] as String? ?? '',
+  );
 }

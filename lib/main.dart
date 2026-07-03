@@ -82,7 +82,7 @@ class _LuxTuneAppState extends State<LuxTuneApp> {
     _appLinks = AppLinks();
 
     try {
-      final initialUri = await _appLinks.getInitialAppLink();
+      final initialUri = await _appLinks.getInitialLink();
       if (initialUri != null) {
         _handleDeepLink(initialUri);
       }

@@ -3,6 +3,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:marquee/marquee.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../providers/player_provider.dart';
 import '../../../providers/explore_provider.dart';
 import '../../../data/network/download_service.dart';
@@ -312,6 +313,19 @@ class _PlayerScreenState extends State<PlayerScreen>
                               onTap: () {
                                 if (track != null) {
                                   player.toggleFavorite(track);
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            _buildActionSquare(
+                              icon: Icons.share_rounded,
+                              onTap: () {
+                                if (track != null) {
+                                  if (track.source == 'youtube') {
+                                    Share.share('Check out this song: https://youtube.com/watch?v=${track.id}');
+                                  } else {
+                                    Share.share('Check out this song: ${track.title} by ${track.artist}');
+                                  }
                                 }
                               },
                             ),

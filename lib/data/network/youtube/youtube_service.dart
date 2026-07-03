@@ -77,6 +77,24 @@ class YoutubeService {
     }
   }
 
+  Future<TrackModel> getTrackFromId(String videoId) async {
+    try {
+      final video = await _yt.videos.get(videoId);
+      return TrackModel(
+        id: video.id.value,
+        title: video.title,
+        artist: video.author,
+        album: 'YouTube',
+        duration: video.duration ?? Duration.zero,
+        audioUrl: '', // This will be fetched on demand
+        albumArt: video.thumbnails.highResUrl,
+        source: 'youtube',
+      );
+    } catch (e) {
+      throw Exception('Failed to get YouTube video details: $e');
+    }
+  }
+
   void dispose() {
     _yt.close();
   }

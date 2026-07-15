@@ -106,7 +106,7 @@ class DownloadService {
         // 3. Inject Metadata (ID3 tags)
         try {
           if (!_metadataInitialized) {
-            MetadataGod.initialize();
+            await MetadataGod.initialize();
             _metadataInitialized = true;
           }
 

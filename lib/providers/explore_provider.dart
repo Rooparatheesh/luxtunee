@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../data/models/track_model.dart';
 import '../data/network/lyrics/lrclib_service.dart';
 import '../data/network/youtube/youtube_service.dart';
+import '../data/network/itunes/itunes_service.dart';
 
 class ExploreProvider extends ChangeNotifier {
   List<TrackModel> trendingTracks = [];
@@ -15,6 +16,7 @@ class ExploreProvider extends ChangeNotifier {
 
   final LrcLibService _lrcLibService = LrcLibService();
   final YoutubeService _youtubeService = YoutubeService();
+  final ItunesService _itunesService = ItunesService();
 
   Future<void> fetchTrending({
     String query = '',
@@ -28,12 +30,12 @@ class ExploreProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final ytTracks = query.isEmpty
+      final tracks = query.isEmpty
           ? await _youtubeService.searchSongs('Top music hits 2024')
           : await _youtubeService.searchSongs(query);
 
       // Map audioUrl using deferred stream URL extraction
-      trendingTracks = ytTracks
+      trendingTracks = tracks
           .map(
             (t) => t.copyWith(
               audioUrl: '', // This will be handled on play

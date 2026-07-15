@@ -54,7 +54,7 @@ class MiniPlayer extends StatelessWidget {
                   height: 44,
                   decoration: const BoxDecoration(shape: BoxShape.circle),
                   clipBehavior: Clip.antiAlias,
-                  child: !track.isLocal && track.albumArt.isNotEmpty
+                  child: track.albumArt.isNotEmpty && track.albumArt.startsWith('http')
                       ? CachedNetworkImage(
                           imageUrl: track.albumArt,
                           fit: BoxFit.cover,

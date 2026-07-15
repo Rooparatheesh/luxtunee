@@ -54,7 +54,7 @@ class _PlayerScreenState extends State<PlayerScreen>
     try {
       // 1. Resolve URL if it's from YouTube
       String url = track.audioUrl;
-      if (url.isEmpty && track.source == 'youtube') {
+      if (url.isEmpty && (track.source == 'youtube' || track.source == 'itunes')) {
         final explore = context.read<ExploreProvider>();
         url = await explore.getAudioUrl(track);
       }
@@ -192,7 +192,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: track != null
-                          ? (!track.isLocal && track.albumArt.isNotEmpty
+                          ? (track.albumArt.isNotEmpty && track.albumArt.startsWith('http')
                                 ? CachedNetworkImage(
                                     imageUrl: track.albumArt,
                                     fit: BoxFit.cover,

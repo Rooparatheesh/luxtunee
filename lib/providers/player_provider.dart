@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import '../data/models/track_model.dart';
 import '../data/repositories/local_repository.dart';
+import '../data/network/itunes/itunes_service.dart';
 
 class PlayerProvider extends ChangeNotifier {
   final AudioPlayer _player = AudioPlayer();
@@ -138,6 +139,24 @@ class PlayerProvider extends ChangeNotifier {
   }) async {
     // Instantly update the UI so it feels snappy and doesn't lag
     currentTrack = track;
+    notifyListeners();
+
+    // If it's a YouTube track, try to fetch iTunes metadata for better UI and downloads
+    if (track.source == 'youtube' && track.album == 'YouTube') {
+      try {
+        final enriched = await ItunesService().enrichYouTubeTrack(track);
+        track = enriched;
+        currentTrack = track;
+        notifyListeners();
+        if (newQueue != null) {
+          final nqIndex = newQueue.indexWhere((t) => t.id == track.id);
+          if (nqIndex >= 0) {
+            newQueue[nqIndex] = track;
+          }
+        }
+      } catch (_) {}
+    }
+
     if (urlResolver != null) {
       _currentResolver = urlResolver;
     } else if (track.isLocal) {
@@ -169,14 +188,13 @@ class PlayerProvider extends ChangeNotifier {
     if (effectiveResolver != null && track.playbackSource.isEmpty) {
       final resolvedUrl = await effectiveResolver(track);
       // Update the track in our queue with the new URL
-      queue[targetIndex] = track.copyWith(audioUrl: resolvedUrl);
-      track = queue[targetIndex];
+      track = track.copyWith(audioUrl: resolvedUrl);
     }
+    queue[targetIndex] = track;
 
     // Build playlist with ALL queue items so background notification shows prev/next
     final children = queue.map((t) {
-      final isRemote = !t.isLocal;
-      final artUri = isRemote && t.albumArt.isNotEmpty
+      final artUri = t.albumArt.isNotEmpty && t.albumArt.startsWith('http')
           ? Uri.parse(t.albumArt)
           : Uri.parse(
               'content://media/external/audio/albumart/${t.albumId ?? 0}',

@@ -214,9 +214,7 @@ class _QueueBottomSheetState extends State<QueueBottomSheet> {
                                           ),
                                         ),
                                         clipBehavior: Clip.antiAlias,
-                                        child:
-                                            !track.isLocal &&
-                                                track.albumArt.isNotEmpty
+                                        child: track.albumArt.isNotEmpty && track.albumArt.startsWith('http')
                                             ? CachedNetworkImage(
                                                 imageUrl: track.albumArt,
                                                 fit: BoxFit.cover,

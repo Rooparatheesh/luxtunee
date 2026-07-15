@@ -3,8 +3,6 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:audiotags/audiotags.dart';
-
 class DownloadService {
 
   /// Downloads an audio file from a URL and saves it to the device's public Music folder.
@@ -157,10 +155,6 @@ class DownloadService {
       // However, the cover art will still show perfectly in the LuxTune Library
       // because we saved the image permanently to getApplicationDocumentsDirectory()
       // and local_repository.dart looks it up from there!
-        // metadata_god may not be compiled if Rust is not installed.
-        // The download still succeeds — we just won't have embedded tags.
-        print('⚠️ Metadata write skipped: $e');
-      }
 
       return audioPath;
     } catch (e, stack) {

@@ -1,6 +1,8 @@
 // lib/providers/player_provider.dart
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -24,8 +26,16 @@ class PlayerProvider extends ChangeNotifier {
 
   List<TrackModel> favoriteTracks = [];
 
+  /// Cache of resolved YouTube stream URLs keyed by video ID.
+  /// Reused by the downloader to avoid fetching the stream URL twice
+  /// (which triggers YouTube's rate-limiting).
+  final Map<String, String> _resolvedUrlCache = {};
+
   Stream<Duration> get positionStream => _player.positionStream;
   Stream<Duration?> get durationStream => _player.durationStream;
+
+  /// Returns a cached stream URL if one was already fetched during playback.
+  String? getCachedStreamUrl(String videoId) => _resolvedUrlCache[videoId];
 
   static const _favoritesKey = 'favorite_tracks';
 
@@ -103,9 +113,23 @@ class PlayerProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    final granted = await _repo.requestPermission();
-    if (granted) {
+    try {
+      // Request permissions directly via permission_handler — avoids the
+      // on_audio_query UninitializedPluginProviderException crash on some Android
+      // versions where the PluginProvider hasn't attached yet when the dialog returns.
+      if (Platform.isAndroid) {
+        // Android 13+ needs READ_MEDIA_AUDIO, older needs READ_EXTERNAL_STORAGE
+        final audioStatus = await Permission.audio.request();
+        if (!audioStatus.isGranted) {
+          // Try legacy storage permission for older devices
+          await Permission.storage.request();
+        }
+      }
+
+      // Now that permissions are granted, fetch tracks directly (skip on_audio_query's own permission check)
       tracks = await _repo.fetchTracks();
+    } catch (e) {
+      debugPrint('loadLibrary error: $e');
     }
 
     isLoading = false;
@@ -128,6 +152,19 @@ class PlayerProvider extends ChangeNotifier {
     // Avoid duplicates if we already have it
     if (!tracks.any((t) => t.uri == localTrack.uri)) {
       tracks.insert(0, localTrack);
+      
+      // Update the current track if it's the one we just downloaded
+      // so the player screen instantly updates its download icon!
+      if (currentTrack?.id == localTrack.id) {
+        currentTrack = localTrack;
+        
+        // Also update the queue so the change is persisted in the session
+        final qIndex = queue.indexWhere((t) => t.id == localTrack.id);
+        if (qIndex >= 0) {
+          queue[qIndex] = localTrack;
+        }
+      }
+      
       notifyListeners();
     }
   }
@@ -187,6 +224,8 @@ class PlayerProvider extends ChangeNotifier {
     // Resolve URL for the current track if a resolver is available and the URL is empty
     if (effectiveResolver != null && track.playbackSource.isEmpty) {
       final resolvedUrl = await effectiveResolver(track);
+      // Cache the resolved URL so the downloader can reuse it without another request
+      _resolvedUrlCache[track.id] = resolvedUrl;
       // Update the track in our queue with the new URL
       track = track.copyWith(audioUrl: resolvedUrl);
     }

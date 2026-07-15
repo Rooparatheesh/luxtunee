@@ -1,5 +1,6 @@
 // lib/presentation/screens/home/home_screen.dart
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:provider/provider.dart';
@@ -213,18 +214,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 clipBehavior: Clip.antiAlias,
-                                child: QueryArtworkWidget(
-                                  id: track.albumId ?? 0,
-                                  type: ArtworkType.ALBUM,
-                                  artworkBorder: BorderRadius.circular(8),
-                                  keepOldArtwork: true,
-                                  nullArtworkWidget: const Center(
-                                    child: Icon(
-                                      Icons.music_note_rounded,
-                                      color: AppColors.textMuted,
-                                    ),
-                                  ),
-                                ),
+                                child: track.albumArt.isNotEmpty && track.albumArt.startsWith('/')
+                                    // Show cached file cover art (for LuxTune downloads)
+                                    // cacheWidth/cacheHeight decode at thumbnail size to save GPU memory
+                                    ? Image.file(
+                                        File(track.albumArt),
+                                        fit: BoxFit.cover,
+                                        width: 56,
+                                        height: 56,
+                                        cacheWidth: 112, // 2x for high-DPI, still tiny in memory
+                                        cacheHeight: 112,
+                                        gaplessPlayback: true,
+                                        errorBuilder: (_, __, ___) => const Center(
+                                          child: Icon(
+                                            Icons.music_note_rounded,
+                                            color: AppColors.textMuted,
+                                          ),
+                                        ),
+                                      )
+                                    // Show system MediaStore artwork for regular local tracks
+                                    : QueryArtworkWidget(
+                                        id: track.albumId ?? 0,
+                                        type: ArtworkType.ALBUM,
+                                        artworkBorder: BorderRadius.circular(8),
+                                        keepOldArtwork: true,
+                                        nullArtworkWidget: const Center(
+                                          child: Icon(
+                                            Icons.music_note_rounded,
+                                            color: AppColors.textMuted,
+                                          ),
+                                        ),
+                                      ),
                               ),
                               const SizedBox(width: 16),
 

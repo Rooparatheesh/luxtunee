@@ -58,6 +58,22 @@ class ExploreProvider extends ChangeNotifier {
     return track.audioUrl;
   }
 
+  /// Get audio url specifically for downloading (ensures audio-only stream so metadata works)
+  Future<String> getDownloadUrl(TrackModel track) async {
+    if (track.source == 'youtube') {
+      return await _youtubeService.getDownloadStreamUrl(track.id);
+    }
+    return track.audioUrl;
+  }
+
+  /// Get actual download stream to bypass 403 Forbidden
+  Future<Map<String, dynamic>?> getDownloadStream(TrackModel track) async {
+    if (track.source == 'youtube') {
+      return await _youtubeService.getDownloadStream(track.id);
+    }
+    return null;
+  }
+
   Future<TrackModel> fetchLyrics(TrackModel track) async {
     try {
       final result = await _lrcLibService.getLyrics(

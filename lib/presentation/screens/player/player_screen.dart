@@ -7,6 +7,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../../providers/player_provider.dart';
 import '../../../providers/explore_provider.dart';
 import '../../../data/network/download_service.dart';
+import '../../../data/network/itunes/itunes_service.dart';
+import '../../../data/models/track_model.dart';
 import '../../../theme/app_theme.dart';
 import '../../components/animated_playback_controls.dart';
 import '../../components/wavy_slider.dart';
@@ -48,27 +50,68 @@ class _PlayerScreenState extends State<PlayerScreen>
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Starting download for ${track.title}...')),
+      SnackBar(
+        content: Text('Downloading ${track.title}... (may take a few seconds)'),
+        duration: const Duration(seconds: 5),
+      ),
     );
 
     try {
       // 1. Resolve URL if it's from YouTube
       String url = track.audioUrl;
-      if (url.isEmpty && (track.source == 'youtube' || track.source == 'itunes')) {
+      Future<Map<String, dynamic>> Function()? streamProvider;
+
+      if (track.source == 'youtube') {
+        final playerProvider = context.read<PlayerProvider>();
+        final explore = context.read<ExploreProvider>();
+        
+        // Check if we already have a cached stream URL from playback
+        // This avoids fetching a new URL which triggers YouTube's rate limiting!
+        final cachedUrl = playerProvider.getCachedStreamUrl(track.id);
+        if (cachedUrl != null && cachedUrl.isNotEmpty) {
+          // Reuse the already-fetched stream URL directly
+          url = cachedUrl;
+        } else {
+          // No cache available — fetch a new download stream
+          streamProvider = () => explore.getDownloadStream(track).then((v) => v!);
+        }
+      } else if (url.isEmpty && track.source == 'itunes') {
         final explore = context.read<ExploreProvider>();
         url = await explore.getAudioUrl(track);
       }
 
-      if (url.isEmpty) {
+      if (url.isEmpty && streamProvider == null) {
         throw Exception('Could not resolve audio URL');
+      }
+
+      // 1.5 — Always try to get high-quality iTunes cover art before downloading.
+      // YouTube thumbnails are low quality (480px). iTunes provides 600x600 hi-res art.
+      // We always attempt this for YouTube tracks regardless of whether a thumbnail exists.
+      TrackModel enrichedTrack = track;
+      if (track.source == 'youtube') {
+        try {
+          final ItunesService itunesService = ItunesService();
+          final result = await itunesService.enrichYouTubeTrack(track);
+          // Only use iTunes if we actually found a better cover art (600x600 from mzstatic.com)
+          if (result.albumArt.contains('mzstatic.com')) {
+            enrichedTrack = result;
+            print('✅ iTunes enrichment for download: ${enrichedTrack.albumArt}');
+          } else {
+            print('⚠️ iTunes enrichment found no match. Using YouTube thumbnail.');
+          }
+        } catch (_) {
+          // If iTunes lookup fails, just use the original track metadata
+        }
       }
 
       // 2. Download and save with progress
       final downloadedPath = await _downloadService.downloadTrack(
         url,
-        track.title,
-        track.artist,
-        albumArtUrl: track.albumArt,
+        enrichedTrack.title,
+        enrichedTrack.artist,
+        albumArtUrl: enrichedTrack.albumArt,
+        albumName: enrichedTrack.album,
+        streamProvider: streamProvider,
         onProgress: (progress) {
           if (mounted) {
             setState(() {
@@ -91,17 +134,18 @@ class _PlayerScreenState extends State<PlayerScreen>
           // Add it manually to the UI immediately
           playerProvider.addDownloadedTrack(track, downloadedPath);
 
-          // Then run background scan and refresh
-          await playerProvider.scanMedia(downloadedPath);
-          await playerProvider.loadLibrary();
+          // Trigger background scan so other apps/system sees it, but don't reload library immediately
+          // since MediaScanner takes a few seconds to index it and it would overwrite our manual addition.
+          playerProvider.scanMedia(downloadedPath);
         }
       } else {
         throw Exception('Failed to save file.');
       }
-    } catch (e) {
+    } catch (e, stack) {
+      print('Download error: $e\n$stack');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed. Please try again.')),
+          SnackBar(content: Text('Download failed: $e')),
         );
       }
     } finally {
@@ -334,43 +378,54 @@ class _PlayerScreenState extends State<PlayerScreen>
                               icon: Icons.lyrics_rounded,
                               onTap: () {},
                             ),
-                            if (track != null && !track.isLocal) ...[
+                            if (track != null) ...[
                               const SizedBox(width: 8),
-                              _isDownloading
-                                  ? SizedBox(
-                                      width: 48,
-                                      height: 48,
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          SizedBox(
-                                            width: 48,
-                                            height: 48,
-                                            child: CircularProgressIndicator(
-                                              value: _downloadProgress,
-                                              strokeWidth: 2.5,
-                                              backgroundColor: AppColors.white
-                                                  .withOpacity(0.1),
-                                              valueColor:
-                                                  const AlwaysStoppedAnimation<
-                                                    Color
-                                                  >(AppColors.libraryTextGreen),
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.download_rounded,
-                                            color: AppColors.libraryTextGreen
-                                                .withOpacity(0.5),
-                                            size: 20,
-                                          ),
-                                        ],
+                              if (track.isLocal)
+                                _buildActionSquare(
+                                  icon: Icons.download_done_rounded,
+                                  onTap: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Song is already downloaded'),
                                       ),
-                                    )
-                                  : _buildActionSquare(
-                                      icon: Icons.download_rounded,
-                                      onTap: () =>
-                                          _handleDownload(context, track),
-                                    ),
+                                    );
+                                  },
+                                )
+                              else if (_isDownloading)
+                                SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 48,
+                                        height: 48,
+                                        child: CircularProgressIndicator(
+                                          value: _downloadProgress,
+                                          strokeWidth: 2.5,
+                                          backgroundColor:
+                                              AppColors.white.withOpacity(0.1),
+                                          valueColor:
+                                              const AlwaysStoppedAnimation<Color>(
+                                            AppColors.libraryTextGreen,
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.download_rounded,
+                                        color: AppColors.libraryTextGreen
+                                            .withOpacity(0.5),
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else
+                                _buildActionSquare(
+                                  icon: Icons.download_rounded,
+                                  onTap: () => _handleDownload(context, track),
+                                ),
                             ],
                             const SizedBox(width: 8),
                             _buildActionSquare(

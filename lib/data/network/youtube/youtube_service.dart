@@ -77,6 +77,92 @@ class YoutubeService {
     }
   }
 
+  /// Extracts the highest quality audio-only stream URL for a given video ID (for downloading).
+  Future<String> getDownloadStreamUrl(String videoId) async {
+    try {
+      final manifest = await _yt.videos.streamsClient.getManifest(videoId);
+      StreamInfo? streamInfo;
+
+      try {
+        final mp4Audio = manifest.audioOnly.where(
+          (s) => s.container.name == 'mp4',
+        );
+        if (mp4Audio.isNotEmpty) {
+          streamInfo = mp4Audio.withHighestBitrate();
+        } else if (manifest.audioOnly.isNotEmpty) {
+          streamInfo = manifest.audioOnly.withHighestBitrate();
+        } else {
+          streamInfo = manifest.muxed.withHighestBitrate();
+        }
+      } catch (_) {
+        if (manifest.audioOnly.isNotEmpty) {
+          streamInfo = manifest.audioOnly.first;
+        } else {
+          streamInfo = manifest.muxed.withHighestBitrate();
+        }
+      }
+
+      return streamInfo.url.toString();
+    } catch (e) {
+      throw Exception('Failed to get YouTube download stream URL: $e');
+    }
+  }
+
+  /// Gets the actual stream of bytes using YoutubeExplode's internal client to bypass 403
+  /// Automatically retries up to 3 times with delay to handle rate limiting.
+  Future<Map<String, dynamic>> getDownloadStream(String videoId) async {
+    const maxRetries = 3;
+    int attempt = 0;
+
+    while (true) {
+      try {
+        // Re-fetch the manifest on every retry to get a fresh URL
+        final manifest = await _yt.videos.streamsClient.getManifest(videoId);
+        StreamInfo? streamInfo;
+
+        try {
+          final mp4Audio = manifest.audioOnly.where(
+            (s) => s.container.name == 'mp4',
+          );
+          if (mp4Audio.isNotEmpty) {
+            streamInfo = mp4Audio.withHighestBitrate();
+          } else if (manifest.audioOnly.isNotEmpty) {
+            streamInfo = manifest.audioOnly.withHighestBitrate();
+          } else {
+            streamInfo = manifest.muxed.withHighestBitrate();
+          }
+        } catch (_) {
+          if (manifest.audioOnly.isNotEmpty) {
+            streamInfo = manifest.audioOnly.first;
+          } else {
+            streamInfo = manifest.muxed.withHighestBitrate();
+          }
+        }
+
+        final stream = _yt.videos.streamsClient.get(streamInfo);
+        return {
+          'stream': stream,
+          'size': streamInfo.size.totalBytes,
+        };
+      } catch (e) {
+        attempt++;
+        final isRateLimit = e.toString().contains('RequestLimitExceeded') ||
+            e.toString().contains('rate limit') ||
+            e.toString().contains('429');
+
+        if (attempt >= maxRetries || !isRateLimit) {
+          throw Exception('Failed to get YouTube download stream: $e');
+        }
+
+        // Exponential backoff: 3s, 6s, 12s
+        final waitSeconds = 3 * (1 << (attempt - 1));
+        print('YouTube rate limited. Retrying in ${waitSeconds}s... (attempt $attempt/$maxRetries)');
+        await Future.delayed(Duration(seconds: waitSeconds));
+      }
+    }
+  }
+
+
   Future<TrackModel> getTrackFromId(String videoId) async {
     try {
       final video = await _yt.videos.get(videoId);

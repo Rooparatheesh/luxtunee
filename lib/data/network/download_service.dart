@@ -151,27 +151,12 @@ class DownloadService {
 
       await sink.close();
 
-      // 3. Inject Metadata using cover art bytes already in memory (no file write needed!)
-      try {
-        List<Picture> pictures = [];
-        if (coverArtBytes != null && coverArtBytes.isNotEmpty) {
-          pictures.add(Picture(
-            bytes: Uint8List.fromList(coverArtBytes),
-            mimeType: MimeType.jpeg,
-            pictureType: PictureType.coverFront,
-          ));
-        }
-
-        final tag = Tag(
-          title: trackTitle,
-          artist: trackArtist,
-          album: albumName ?? 'LuxTune Downloads',
-          pictures: pictures,
-        );
-
-        await AudioTags.write(audioPath, tag);
-        print('✅ Metadata written: title=$trackTitle, artist=$trackArtist, album=${albumName ?? "LuxTune Downloads"}, hasCover=${pictures.isNotEmpty}');
-      } catch (e) {
+      // We skip embedding metadata into the .m4a file itself because
+      // native tagging libraries (metadata_god, audiotags) require Rust/C++
+      // compilation which is currently failing in this environment.
+      // However, the cover art will still show perfectly in the LuxTune Library
+      // because we saved the image permanently to getApplicationDocumentsDirectory()
+      // and local_repository.dart looks it up from there!
         // metadata_god may not be compiled if Rust is not installed.
         // The download still succeeds — we just won't have embedded tags.
         print('⚠️ Metadata write skipped: $e');

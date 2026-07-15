@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  audiotags
   gtk
   url_launcher_linux
 )

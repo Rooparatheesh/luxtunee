@@ -27,7 +27,7 @@ class ItunesService {
             artist: track['artistName'] ?? 'Unknown Artist',
             album: track['collectionName'] ?? 'Unknown Album',
             duration: Duration(milliseconds: track['trackTimeMillis'] ?? 0),
-            audioUrl: '', // Will fetch full audio from YouTube later
+            audioUrl: track['previewUrl'] ?? '', 
             albumArt: albumArt,
             source: 'itunes',
           );

@@ -111,6 +111,110 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
             const SizedBox(height: 16),
 
+            // Source Toggle
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Consumer<ExploreProvider>(
+                builder: (context, explore, child) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (explore.currentSource != 'youtube') {
+                              explore.fetchTrending(
+                                query: explore.currentQuery,
+                                categoryName: explore.currentCategory,
+                                source: 'youtube',
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: explore.currentSource == 'youtube'
+                                  ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: explore.currentSource == 'youtube'
+                                    ? Theme.of(context).colorScheme.primary
+                                    : AppColors.textMuted.withOpacity(0.3),
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.play_circle_filled, size: 16, color: explore.currentSource == 'youtube' ? Theme.of(context).colorScheme.primary : AppColors.textMuted),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'YouTube',
+                                  style: AppTypography.label(
+                                    color: explore.currentSource == 'youtube'
+                                        ? Theme.of(context).colorScheme.primary
+                                        : AppColors.textMuted,
+                                    weight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (explore.currentSource != 'itunes') {
+                              explore.fetchTrending(
+                                query: explore.currentQuery,
+                                categoryName: explore.currentCategory,
+                                source: 'itunes',
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: explore.currentSource == 'itunes'
+                                  ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: explore.currentSource == 'itunes'
+                                    ? Theme.of(context).colorScheme.primary
+                                    : AppColors.textMuted.withOpacity(0.3),
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.music_note, size: 16, color: explore.currentSource == 'itunes' ? Theme.of(context).colorScheme.primary : AppColors.textMuted),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'iTunes',
+                                  style: AppTypography.label(
+                                    color: explore.currentSource == 'itunes'
+                                        ? Theme.of(context).colorScheme.primary
+                                        : AppColors.textMuted,
+                                    weight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+
             // Language/Genre Pills
             SizedBox(
               height: 36,

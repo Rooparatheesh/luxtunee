@@ -13,6 +13,7 @@ class ExploreProvider extends ChangeNotifier {
 
   String currentCategory = 'Trending';
   String currentQuery = '';
+  String currentSource = 'youtube'; // 'youtube' or 'itunes'
 
   final LrcLibService _lrcLibService = LrcLibService();
   final YoutubeService _youtubeService = YoutubeService();
@@ -21,18 +22,27 @@ class ExploreProvider extends ChangeNotifier {
   Future<void> fetchTrending({
     String query = '',
     String categoryName = 'Trending',
+    String? source,
   }) async {
     currentCategory = categoryName;
     currentQuery = query;
+    if (source != null) {
+      currentSource = source;
+    }
 
     isLoading = true;
     error = null;
     notifyListeners();
 
     try {
-      final tracks = query.isEmpty
-          ? await _youtubeService.searchSongs('Top music hits 2024')
-          : await _youtubeService.searchSongs(query);
+      final searchTerm = query.isEmpty ? 'Top music hits 2024' : query;
+      
+      List<TrackModel> tracks = [];
+      if (currentSource == 'itunes') {
+         tracks = await _itunesService.searchSongs(searchTerm);
+      } else {
+         tracks = await _youtubeService.searchSongs(searchTerm);
+      }
 
       // Map audioUrl using deferred stream URL extraction
       trendingTracks = tracks
@@ -54,6 +64,16 @@ class ExploreProvider extends ChangeNotifier {
   Future<String> getAudioUrl(TrackModel track) async {
     if (track.source == 'youtube') {
       return await _youtubeService.getStreamUrl(track.id);
+    } else if (track.source == 'itunes') {
+      try {
+        final searchResults = await _youtubeService.searchSongs("${track.title} ${track.artist}", limit: 1);
+        if (searchResults.isNotEmpty) {
+          return await _youtubeService.getStreamUrl(searchResults.first.id);
+        }
+      } catch (_) {
+        // Fallback to preview url
+      }
+      return track.audioUrl;
     }
     return track.audioUrl;
   }

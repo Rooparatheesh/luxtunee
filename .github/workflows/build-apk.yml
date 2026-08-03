@@ -189,9 +189,10 @@ jobs:
           retention-days: 7
 
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: "v1.0.${{ github.run_number }}"
+          name: "Auto-Release v1.0.${{ github.run_number }}"
           files: |
             build/app/outputs/flutter-apk/app-release.apk
             app-release.apk.sig

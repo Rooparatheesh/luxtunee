@@ -41,6 +41,10 @@ class YoutubeService {
       }
       return tracks;
     } catch (e) {
+      final errorStr = e.toString();
+      if (errorStr.contains('SocketException') || errorStr.contains('Failed host lookup') || errorStr.contains('ClientException')) {
+        throw Exception('No Internet Connection. Please check your network and try again.');
+      }
       throw Exception('YouTube API error: $e');
     }
   }

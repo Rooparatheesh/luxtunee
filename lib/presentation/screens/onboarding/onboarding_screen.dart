@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:luxtunee/theme/app_theme.dart';
 import 'package:luxtunee/presentation/widgets/common/blob_painter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_constants.dart';
 import '../main_scaffold.dart';
 import 'dart:math' as math;
@@ -90,6 +91,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
 
     _enterCtrl.forward();
+    _markOnboardingSeen();
+  }
+
+  Future<void> _markOnboardingSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_onboarding', true);
   }
 
   @override
@@ -99,7 +106,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     super.dispose();
   }
 
-  void _navigateToArtistSelect() {
+  void _navigateToArtistSelect() async {
+    await _markOnboardingSeen();
+    if (!mounted) return;
+
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => const MainScaffold(),

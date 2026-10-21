@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:luxtunee/theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../onboarding/onboarding_screen.dart';
+import '../main_scaffold.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -52,18 +54,29 @@ class _SplashScreenState extends State<SplashScreen>
     _bgCtrl.forward();
     _logoCtrl.forward();
 
-    Future.delayed(const Duration(milliseconds: 400), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const OnboardingScreen(),
-            transitionsBuilder: (_, anim, __, child) =>
-                FadeTransition(opacity: anim, child: child),
-            transitionDuration: const Duration(milliseconds: 200),
-          ),
-        );
-      }
-    });
+    _handleNavigation();
+  }
+
+  Future<void> _handleNavigation() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+
+    await Future.delayed(const Duration(milliseconds: 400));
+
+    if (!mounted) return;
+
+    final Widget targetScreen = hasSeenOnboarding
+        ? const MainScaffold()
+        : const OnboardingScreen();
+
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => targetScreen,
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
   }
 
   @override

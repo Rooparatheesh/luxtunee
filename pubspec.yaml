@@ -1,4 +1,4 @@
-name: luxtunee
+﻿name: luxtunee
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -30,6 +30,7 @@ dependencies:
   marquee: ^2.3.0
   device_info_plus: ^12.4.0
   firebase_core: ^4.11.0
+  firebase_crashlytics: ^5.2.4
   firebase_database: ^12.4.3
   path_provider: ^2.1.5
   permission_handler: ^12.0.3

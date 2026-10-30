@@ -1,10 +1,12 @@
 // lib/main.dart
 
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:app_links/app_links.dart';
 import 'package:luxtunee/theme/app_theme.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -22,6 +24,15 @@ Future<void> main() async {
 
   try {
     await Firebase.initializeApp();
+
+    // Pass all uncaught Flutter framework errors to Crashlytics
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+    // Pass all uncaught async errors to Crashlytics
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
   } catch (e) {
     debugPrint('Firebase init error: $e');
   }
